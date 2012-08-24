@@ -10,17 +10,20 @@ If you simply want to run bitches:
 
 1. Clone the repository: `git clone git://github.com/britishtea/bitches.git`.
 2. Set up some environment variables: `NICKSERV_PASSWORD`, `DATABASE_URL`, `WHATCD_USERNAME` and `WHATCD_PASSWORD`.
-3. Run it: `rake run`.
+3. Install dependencies: `bundle install`.
+4. Run it: `rake run`.
 
 If you would like to run it from a remote server:
 
 1. Clone the repository: `git clone git://github.com/britishtea/bitches.git`.
 2. Set up a remote repository:
+
 ```shell
 mkdir bitches.git && cd bitches.git
 git init
 git config receive.denyCurrentBranch ignore
 ```
+
 3. Edit the post-receive hook (the `post-receive.sample` file from the cloned repository). Copy it to the remote repository to the hooks folder: `./bitches.git/hooks/post-receive`.
 4. Add the remote repository to your local repository: `git remote add remote server.com:bitches.git`
 5. Push changes to the remote repository: `git push remote master`.
