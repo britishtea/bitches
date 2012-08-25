@@ -2,6 +2,8 @@
 
 require 'uri'
 
+require 'cinch/helpers/admin'
+
 require 'models/user'
 require 'models/choon'
 require 'models/tag'
@@ -10,6 +12,7 @@ module Cinch
   module Plugins
     class Choons
       include Cinch::Plugin
+      include Helpers::Admin
       
       # Internal: An Array of genre Strings that suck.
       SUCK = ['dubstep', 'easy.listening', 'classic.rock']
@@ -105,18 +108,6 @@ module Cinch
       rescue => e
         bot.loggers.error e.message
         m.reply "Something went wrong, choon probably didn't exist"
-      end
-      
-      # Internal: Checks wether the user is an admin or not
-      #
-      # channel - The Cinch::Channel.
-      # user    - The Cinch::User that needs to be authorized.
-      #
-      # Returns a Boolean.
-      def authorized?(channel, user)   
-        ['q', 'a', 'o', 'h'].each do |mode|
-          return true if channel.users[user].include? mode
-        end
       end
     end
   end

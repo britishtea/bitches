@@ -1,5 +1,7 @@
 require 'net/http'
 
+require 'cinch/helpers/admin'
+
 require 'models/user'
 require 'models/picture'
 
@@ -7,6 +9,7 @@ module Cinch
   module Plugins
     class Pictures
       include Cinch::Plugin
+      include Helpers::Admin
   
       set :plugin_name, 'pictures'
       set :help, "Usage: !del[ete] url."
@@ -61,22 +64,6 @@ module Cinch
       rescue => e
         m.user.notice "I'm sorry, that didn't work."
         bot.loggers.error e.message
-      end
-  
-    private
-    
-      # Internal: Checks wether the user is an admin or not
-      #
-      # channel - The Cinch::Channel.
-      # user    - The Cinch::User that needs to be authorized.
-      #
-      # Returns a Boolean.
-      def authorized?(channel, user)
-        ['q', 'a', 'o', 'h'].each do |mode|
-          return true if channel.users[user].include? mode
-        end
-        
-        false
       end
     end 
   end
