@@ -68,7 +68,7 @@ bot = Cinch::Bot.new do
   end
 
   on :message, "!help" do |m|
-    m.reply "https://github.com/britishtea/bitches/blob/master/HELP.md"
+    m.reply "https://github.com/britishtea/bitches/blob/master/HELP.md#help"
   end
 end
 
