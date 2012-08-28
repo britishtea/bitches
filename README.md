@@ -4,7 +4,7 @@
 
 Bitches is an IRC bot written for [#indie](irc://irc.what-network.com/#indie). It is written in Ruby and relies on [Cinch](https://github.com/cinchrb/cinch).
 
-# Installation
+## Installation
 
 If you simply want to run bitches:
 
@@ -28,11 +28,11 @@ git config receive.denyCurrentBranch ignore
 4. Add the remote repository to your local repository: `git remote add remote server.com:bitches.git`
 5. Push changes to the remote repository: `git push remote master`.
 
-# Usage
+## Usage
 
 See [HELP.md](https://github.com/britishtea/bitches/blob/master/HELP.md).
 
-# License - MIT License
+## License - MIT License
 
 Copyright (C) 2012 Paul Brickfeld
 
