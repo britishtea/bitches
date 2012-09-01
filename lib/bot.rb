@@ -5,7 +5,7 @@ require 'cinch/plugins/choons'
 require 'cinch/plugins/pictures'
 require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
-require 'cinch/plugins/whatcd'
+#require 'cinch/plugins/whatcd'
 
 # Interal: Checks if the environment is production.
 #
@@ -15,7 +15,7 @@ def production?
 end
 
 # Deamonize the process if in production
-if production?
+=begin if production?
   Daemons.daemonize({
     :app_name   => 'bitches',
     :backtrace  => true,
@@ -23,10 +23,10 @@ if production?
     :dir_mode   => :script,
     :log_output => true
   })
-end
+=end
 
 # Set up DataMapper
-DataMapper.setup :default, "sqlite://#{ENV['DATABASE_URL']}"
+DataMapper.setup :default, ENV['DATABASE_URL']
 DataMapper.finalize
 
 # Set up the Cinch::Bot
@@ -44,7 +44,7 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::Pictures,
       Cinch::Plugins::Fun,
       Cinch::Plugins::Links,
-      Cinch::Plugins::What
+#      Cinch::Plugins::What
     ]
     
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -59,16 +59,20 @@ bot = Cinch::Bot.new do
     
     c.plugins.options[Cinch::Plugins::Choons] = { :channel => '#indie' }
 
-    c.plugins.options[Cinch::Plugins::What] = {
-      :username => ENV['WHATCD_USERNAME'],
-      :password => ENV['WHATCD_PASSWORD']
-    }
+#    c.plugins.options[Cinch::Plugins::What] = {
+#      :username => ENV['WHATCD_USERNAME'],
+#      :password => ENV['WHATCD_PASSWORD']
+#    }
     
     DataMapper.auto_upgrade!
   end
 
   on :message, "!help" do |m|
     m.reply "https://github.com/britishtea/bitches/blob/master/HELP.md#help"
+  end
+
+  on :message, /^!what/ do |m|
+    m.reply "!what unfortunately doesn't work anymore due to an IP block on the Heroku server(s) that bitches runs on."
   end
 end
 

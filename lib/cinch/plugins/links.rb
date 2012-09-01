@@ -5,7 +5,7 @@ module Cinch
       
       LINKS = {
         :tumblr   => 'http://whatindie.tumblr.com/',
-        :gallery  => 'http://indie-gallery.no.de/',
+        :gallery  => 'http://indie-gallery.herokuapp.com/',
         :stats    => 'http://zhaan.org/ircstats/indie/',
         :collage  => 'https://what.cd/collages.php?id=13264 or https://ssl.what.cd/collages.php?id=13264',
         :facebook => 'https://www.facebook.com/indievidualradio',

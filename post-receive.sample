@@ -6,6 +6,7 @@ GIT_DIR='.git'
 umask 002 && git reset --hard
 
 # Environment variables
+export DATABASE_URL=""
 export ENVIRONMENT="production"
 export NICKSERV_PASSWORD=""
 export WHATCD_USERNAME=""
