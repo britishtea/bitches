@@ -71,7 +71,7 @@ bot = Cinch::Bot.new do
     m.reply "https://github.com/britishtea/bitches/blob/master/HELP.md#help"
   end
 
-  on :message, /^!what/ do |m|
+  on :message, /^!what .+/ do |m|
     m.reply "!what unfortunately doesn't work anymore due to an IP block on the Heroku server(s) that bitches runs on."
   end
 end
