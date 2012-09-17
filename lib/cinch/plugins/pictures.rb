@@ -22,13 +22,21 @@ module Cinch
       def initialize(*args)
         super
 
-        @url     = self.config[:url]
-        @channel = self.config[:channel]
+        @url           = self.config[:url]
+        @channel       = self.config[:channel]
+        @ignored_hosts = self.config[:ignored_hosts]
+        @ignored_tags  = self.config[:ignored_tags]
       end
   
       # Public: Saves image URLs to an SQLite database.
       def add_picture(m, message)
-        return if message =~ /(nsfl|nsfw)/i
+        ignore = false
+
+        @ignored_tags.each do |tag|
+          ignore = true if message.downcase.include? " #{tag}".downcase
+        end
+
+        return if ignore == true
         
         URI.extract(message, ["http", "https"]) do |uri|
           # Only allow images
@@ -36,7 +44,7 @@ module Cinch
           next unless res['content-type'] =~ /^image\//i
           
           # 4chan images are short-lived
-          next if URI(uri).host == "images.4chan.org" 
+          next if @ignored_hosts.include? URI(uri).host
           
           user = Models::User.first_or_create :nickname => m.user.nick
           user.save!
