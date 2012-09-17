@@ -56,7 +56,7 @@ bot = Cinch::Bot.new do
       :url     => 'http://indie-gallery.no.de/',
       :channel => '#indie',
       :ignored_hosts => ['images.4chan.org'],
-      :ignored_tags  => ['nsfw', 'nsfl', 'personal', 'ignore']
+      :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
     
     c.plugins.options[Cinch::Plugins::Choons] = { :channel => '#indie' }

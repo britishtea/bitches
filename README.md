@@ -20,8 +20,7 @@ If you would like to run it from a remote server:
 
 ```shell
 mkdir bitches.git && cd bitches.git
-git init
-git config receive.denyCurrentBranch ignore
+git init && git config receive.denyCurrentBranch ignore
 ```
 
 3. Edit the post-receive hook (the `post-receive.sample` file from the cloned repository). Copy it to the remote repository to the hooks folder: `./bitches.git/hooks/post-receive`.
