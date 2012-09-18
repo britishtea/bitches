@@ -33,7 +33,7 @@ module Cinch
         ignore = false
 
         @ignored_tags.each do |tag|
-          if tag.is_a? RegExp
+          if tag.is_a? ::Regexp
             ignore = true if message =~ tag
           else
             ignore = true if message.downcase.include? tag.downcase
