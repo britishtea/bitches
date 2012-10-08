@@ -2,9 +2,6 @@ require 'net/http'
 
 require 'cinch/helpers/admin'
 
-require 'models/user'
-require 'models/picture'
-
 module Cinch
   module Plugins
     class Pictures
@@ -14,9 +11,10 @@ module Cinch
       set :plugin_name, 'pictures'
       set :help, "Usage: !del[ete] url."
       
-      match /del(?:ete)? (.+)/i, :group => :uris, :method => :delete
-      match /(.*http.*)/,        :group => :uris, :method => :add_picture, 
-                                 :use_prefix => false
+      match /picture -{0,2}del(?:ete)? (.+)/i, :group => :uris, :method => :delete
+      match /del(?:ete)? (.+)/i,         :group => :uris, :method => :delete
+      match /(.*http.*)/,                :group => :uris, :method => :add_picture, 
+                                         :use_prefix => false
   
       # Internal: Initializes the plugin and opens a SQLite database connection.
       def initialize(*args)
@@ -33,7 +31,7 @@ module Cinch
         ignore = false
 
         @ignored_tags.each do |tag|
-          if tag.is_a? ::Regexp
+          if tag.is_a? Regexp
             ignore = true if message =~ tag
           else
             ignore = true if message.downcase.include? tag.downcase
@@ -71,11 +69,11 @@ module Cinch
           picture.destroy!
           m.user.notice 'Aye!'
         else
-          m.reply 'Lol, sorry brochachi.'
+          m.channel.action 'giggles'
         end
       rescue => e
-        m.user.notice "I'm sorry, that didn't work."
         bot.loggers.error e.message
+        m.user.notice "I'm sorry, that didn't work."
       end
     end 
   end

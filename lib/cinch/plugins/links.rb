@@ -25,9 +25,11 @@ module Cinch
       end
       
       def one_link(m, option)
-        puts option
-        return unless LINKS.has_key? option.to_sym
-        m.reply "#{option.capitalize}: #{LINKS[option.to_sym]}"
+        if LINKS.has_key? option.to_sym
+          m.reply "#{option.capitalize}: #{LINKS[option.to_sym]}"
+        else
+          m.user.notice "I don't know of any links for #{option}."
+        end
       end
     end
   end

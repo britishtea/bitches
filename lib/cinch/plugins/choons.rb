@@ -1,12 +1,7 @@
 # encoding: utf-8
-
 require 'uri'
 
 require 'cinch/helpers/admin'
-
-require 'models/user'
-require 'models/choon'
-require 'models/tag'
 
 module Cinch
   module Plugins
@@ -56,8 +51,8 @@ module Cinch
           m.reply "Here's one: #{choon.url}"
         end
       rescue => e
-        m.reply "Nobody likes #{tag}. Nobody likes you. Please. Just. Leave."
         bot.loggers.error e.message
+        m.reply "Nobody likes #{tag}. Nobody likes you. Please. Just. Leave."
       end
       
       # Adds a choon to the database or updates its tags.
@@ -81,12 +76,11 @@ module Cinch
         end
         
         choon.save!
-        bot.loggers.info "New choon (#{choon.id}) added to database by #{m.user.nick}"
         
         m.reply "This choon has been george choonied, sir."
       rescue => e
-        m.reply "A wild error appeared. You're out of pokéballs."
         bot.loggers.error e.message
+        m.reply "A wild error appeared. You're out of pokéballs."
       end
       
       # Public: Deletes a choon from the database.
@@ -100,14 +94,13 @@ module Cinch
         
         if authorized? Channel(@channel), m.user
           choon.destroy!
-          m.reply "Done, Mrs Robinson. Jesus loves you more than you will know."
+          m.user.notice "Aye!"
         else
-          bot.loggers.info "#{m.user.nick} tried to delete a choon. LOL!"
-          m.reply "I just don't know what to do with myself"
+          m.channel.action "giggles"
         end
       rescue => e
         bot.loggers.error e.message
-        m.reply "Something went wrong, choon probably didn't exist"
+        m.user.notice "Something went wrong, choon most likely didn't exist."
       end
     end
   end
