@@ -4,7 +4,7 @@ module Models
 
 		storage_names[:default] = 'users'
 
-		property :id,         Serial
+		property :id,         Serial, :key => true
 		property :nickname,   String, :required => true, :unique => true
 
 		has n, :choons

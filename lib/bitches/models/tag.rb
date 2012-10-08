@@ -4,7 +4,7 @@ module Models
 	
 		storage_names[:default] = 'tags'
 	
-		property :id,   Serial
+		property :id,   Serial, :key => true
 		property :name, String, :required => true, :unique => true
 	
 		has n, :choons, :through => Resource

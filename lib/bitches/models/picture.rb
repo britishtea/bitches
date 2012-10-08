@@ -4,7 +4,7 @@ module Models
 	
 		storage_names[:default] = 'pictures'
 	
-		property :id,         Serial
+		property :id,         Serial, :key => true
 		property :url,        String, :required => true, :unique => true
 		property :created_at, DateTime, :default => proc { Time.now }
 		property :updated_at, DateTime, :default => proc { Time.now }
