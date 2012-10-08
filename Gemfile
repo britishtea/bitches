@@ -13,9 +13,8 @@ gem 'cinch-identify', :git => 'git://github.com/cinchrb/cinch-identify.git',
                       :require => 'cinch/plugins/identify'
 gem 'cinch-imdb', :git => 'git://github.com/britishtea/cinch-imdb.git',
                   :require => 'cinch/plugins/imdb'
-gem 'daemons'
 gem 'data_mapper', '~> 1.2.0'
 gem 'httparty', '0.8.2' # bug in imdb-party :(
 gem 'rake'
-gem 'slop', :git => 'git://github.com/injekt/slop.git'
+gem 'slop'
 gem 'whatcd', :git => 'git://github.com/britishtea/whatcd.git'

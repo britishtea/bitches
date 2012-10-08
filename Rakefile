@@ -10,15 +10,15 @@ namespace :run do
 
 	task :development do
 		ENV['ENVIRONMENT'] = 'development'
-		ENV['DATABASE_URL'] = "#{Dir.pwd}/../indie-gallery/data/database.sqlite"
-		`bundle exec ruby -I lib lib/bot.rb`
+		ENV['DATABASE_URL'] = "sqlite://#{Dir.pwd}/../bitches-gallery/test_database"
+		`bundle exec ruby -I lib app.rb`
 	end
 
 	desc 'Run in production mode'
 
 	task :production do
 		ENV['ENVIRONMENT'] = 'production'
-		`bundle exec ruby -I lib lib/bot.rb`
+		`bundle exec ruby -I lib app.rb`
 	end
 
 	task :stop do
