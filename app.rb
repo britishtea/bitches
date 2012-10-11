@@ -57,7 +57,7 @@ bot = Cinch::Bot.new do
   end
 
   on :message, "!help" do |m|
-    m.reply "https://github.com/britishtea/bitches/blob/master/HELP.md#help"
+    m.reply "See http://goo.gl/ZFy1V"
   end
 
   on :message, /^!what .+/ do |m|

@@ -12,7 +12,7 @@ Bitches maintains a jukebox of choons.
 * `!choon url [tag 1, [tag 2, …]]`: adds a choon to the jukebox.
 * `!choon --delete url` : deletes a choon from the jukebox*.
 
-* ops only
+\* ops only
 
 ### IMDb
 
@@ -23,6 +23,7 @@ Bitches can search the [IMDb](http://imdb.com) for you.
 * `!imdb searchterm`: sends you a summary of a movie.
 * `!imdb imdb_id`: sends you a summary of the movie what that imdb id.
 * `!imdb --detail searchterm`: sends you just that detail about a movie (e.g. `!imdb --runtime amelie`).
+* `!imdb more`: sends you a link to a search query on IMDb (in case bitches fucked up).
 
 Possible details are `title`, `imdb_id`, `tagline`, `plot`, `runtime`, `rating`, `release_date`, `poster_url`, `certification`, `trailer`, `genres`, `writers`, `directors` and `actors`.
 
@@ -43,7 +44,7 @@ Bitches adds all pictures linked in the channel to a [gallery](http://indie-gall
 
 * `!picture --delete url`: deletes a picture from the gallery*.
 
-* ops only
+\* ops only
 
 ### What (**currently unavailable!**)
 
