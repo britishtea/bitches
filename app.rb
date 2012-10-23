@@ -1,8 +1,12 @@
-require 'bundler/setup'
-Bundler.require :default
-Bundler.require ENV['ENVIRONMENT'].to_sym
+# require 'bundler/setup'
+# Bundler.require :default
+# Bundler.require ENV['ENVIRONMENT'].to_sym
+require 'cinch'
+require 'data_mapper'
 
 require 'cinch/plugins/choons'
+require 'cinch/plugins/identify'
+require 'cinch/plugins/imdb'
 require 'cinch/plugins/pictures'
 require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
