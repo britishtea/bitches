@@ -8,20 +8,6 @@ GIT
       shortly (~> 0.3.3)
       youtube_it (~> 2.1.7)
 
-GIT
-  remote: git://github.com/britishtea/whatcd.git
-  revision: 10852b9eff7446a174dde28c05a6db3fa94bcdba
-  specs:
-    whatcd (0.1.5)
-      httparty
-
-GIT
-  remote: git://github.com/cinchrb/cinch-identify.git
-  revision: b689447504f832fb902e5ed007acd186b6384142
-  specs:
-    cinch-identify (1.3.0)
-      cinch (~> 2.0)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -29,6 +15,8 @@ GEM
     bcrypt-ruby (3.0.1)
     builder (3.1.3)
     cinch (2.0.3)
+    cinch-identify (1.3.0)
+      cinch (~> 2.0)
     data_mapper (1.2.0)
       dm-aggregates (~> 1.2.0)
       dm-constraints (~> 1.2.0)
@@ -115,6 +103,8 @@ GEM
     slop (3.3.3)
     stringex (1.4.0)
     uuidtools (2.1.3)
+    whatcd (0.1.5)
+      httparty
     youtube_it (2.1.7)
       builder
       faraday (~> 0.8)
@@ -128,7 +118,7 @@ PLATFORMS
 
 DEPENDENCIES
   cinch
-  cinch-identify!
+  cinch-identify
   cinch-imdb!
   data_mapper (~> 1.2.0)
   dm-postgres-adapter
@@ -136,4 +126,4 @@ DEPENDENCIES
   httparty (= 0.8.2)
   rake
   slop
-  whatcd!
+  whatcd
