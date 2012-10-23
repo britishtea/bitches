@@ -6,6 +6,7 @@ require 'cinch/plugins/choons'
 require 'cinch/plugins/pictures'
 require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
+require 'cinch/plugins/whatcd'
 
 # Interal: Checks if the environment is production.
 #
@@ -36,7 +37,8 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::IMDb,
       Cinch::Plugins::Pictures,
       Cinch::Plugins::Fun,
-      Cinch::Plugins::Links
+      Cinch::Plugins::Links,
+      Cinch::Plugins::What
     ]
     
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -52,6 +54,11 @@ bot = Cinch::Bot.new do
     }
     
     c.plugins.options[Cinch::Plugins::Choons] = { :channel => '#indie' }
+
+    c.plugins.options[Cinch::Plugins::What] = {
+      :username => ENV['WHATCD_USERNAME'],
+      :password => ENV['WHATCD_PASSWORD']
+    }
     
     DataMapper.auto_upgrade!
   end
@@ -60,9 +67,9 @@ bot = Cinch::Bot.new do
     m.reply "See http://goo.gl/ZFy1V"
   end
 
-  on :message, /^!what .+/ do |m|
-    m.reply "!what unfortunately doesn't work anymore due to an IP block on the Heroku server(s) that bitches runs on."
-  end
+  # on :message, /^!what .+/ do |m|
+  #   m.reply "!what unfortunately doesn't work anymore due to an IP block on the Heroku server(s) that bitches runs on."
+  # end
 end
 
 # Configure loggers
