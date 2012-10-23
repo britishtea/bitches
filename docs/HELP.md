@@ -46,7 +46,7 @@ Bitches adds all pictures linked in the channel to a [gallery](http://indie-gall
 
 \* ops only
 
-### What (**currently unavailable!**)
+### What
 
 Bitches can search [what.cd](https://what.cd) for you. It can search for torrents, requests and users. It also has some of that Rippy magic.
 
