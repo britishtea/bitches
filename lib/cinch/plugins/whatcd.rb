@@ -92,7 +92,7 @@ module Cinch
       #
       # Returns a String.
       def urls(resource)
-        "https://what.cd/#{resource} or https://ssl.what.cd/#{resource}"
+        "https://what.cd/#{resource}"
       end
 
       # Internal: Handles errors.
