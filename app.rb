@@ -7,7 +7,7 @@ require 'data_mapper'
 require 'cinch/plugins/choons'
 require 'cinch/plugins/identify'
 require 'cinch/plugins/imdb'
-require 'cinch/plugins/pictures'
+require 'cinch/plugins/media'
 require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
 require 'cinch/plugins/whatcd'
@@ -39,7 +39,7 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::Choons,
       Cinch::Plugins::Identify,
       Cinch::Plugins::IMDb,
-      Cinch::Plugins::Pictures,
+      Cinch::Plugins::Media,
       Cinch::Plugins::Fun,
       Cinch::Plugins::Links,
       Cinch::Plugins::What
@@ -50,9 +50,9 @@ bot = Cinch::Bot.new do
       :type     => :nickserv,
     }
     
-    c.plugins.options[Cinch::Plugins::Pictures] = {
-      :url     => 'http://indie-gallery.no.de/',
-      :channel => '#indie',
+    c.plugins.options[Cinch::Plugins::Media] = {
+      :url           => 'http://indie-gallery.herokuapp.com/',
+      :channel       => '#indie',
       :ignored_hosts => ['images.4chan.org', 'https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }

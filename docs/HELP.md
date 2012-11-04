@@ -36,13 +36,13 @@ Bitches has a handy list of links that are associated with the channel in one wa
 * `!links`: sends you *all* links as NOTICEs.
 * `!link [link name]`: sends you the one link you specified (e.g. collage).
 
-### Pictures
+### Media
 
 Bitches adds all pictures linked in the channel to a [gallery](http://indie-gallery.no.de). It ignores pictures that are specified as *nsfw*, *nsfl* (please do), *ignore* and *personal*.
 
 **Usage**: `-`
 
-* `!picture --delete url`: deletes a picture from the gallery*.
+* `!delete url`: deletes a picture from the gallery*.
 
 \* ops only
 
