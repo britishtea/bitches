@@ -27,7 +27,7 @@ module Cinch
 
       # Public: Adds media to the database
       def add_media(m)
-        return if ignore?(m)
+        return if ignore?(m.message)
         #return unless @channels.include?(m.channel)
 
         URI.extract m.message, ['http', 'https'] do |uri|
