@@ -29,7 +29,7 @@ module Cinch
         a = query.split '--', 2
 
         params = get_options "--#{a[1]}".strip.split if a.count > 1
-        (params ||= {})[:search] = a.first.strip
+        (params ||= {})[:search] = a.first.strip.gsub '-', ''
 
         results = WhatCD::Requests(params)['results']
 
@@ -55,7 +55,7 @@ module Cinch
         a = query.split '--', 2
 
         params = get_options("--#{a[1]}".strip.split) if a.count > 1
-        (params ||= {})[:searchstr] = a.first.strip
+        (params ||= {})[:searchstr] = a.first.strip.gsub '-', ''
 
         results = WhatCD::Browse(params)['results']
 
