@@ -11,6 +11,7 @@ require 'cinch/plugins/media'
 require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
 require 'cinch/plugins/whatcd'
+require 'cinch/plugins/big_brother'
 
 # Interal: Checks if the environment is production.
 #
@@ -23,6 +24,7 @@ end
 DataMapper.setup :default, ENV['DATABASE_URL']
 
 require 'bitches/models'
+require 'bitches/models/bad_word'
 
 DataMapper.finalize
 DataMapper.auto_upgrade!
@@ -33,7 +35,7 @@ bot = Cinch::Bot.new do
     c.nick     = production? ? 'bitches' : 'testes'
     c.user     = 'bitches'
     c.server   = 'irc.what-network.net'
-    c.channels = production? ? ['#indie'] : ['#indie-test']
+    c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
     
     c.plugins.plugins = [
       Cinch::Plugins::Choons,
@@ -42,7 +44,8 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::Media,
       Cinch::Plugins::Fun,
       Cinch::Plugins::Links,
-      Cinch::Plugins::What
+      Cinch::Plugins::What,
+      Cinch::Plugins::BigBrother
     ]
     
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -52,7 +55,7 @@ bot = Cinch::Bot.new do
     
     c.plugins.options[Cinch::Plugins::Media] = {
       :url           => 'http://indie-gallery.herokuapp.com/',
-      :channel       => '#indie',
+      :channel       => production? ? '#indie' : '#indie-test',
       :ignored_hosts => ['images.4chan.org', 'https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
@@ -63,8 +66,10 @@ bot = Cinch::Bot.new do
       :username => ENV['WHATCD_USERNAME'],
       :password => ENV['WHATCD_PASSWORD']
     }
-    
-    DataMapper.auto_upgrade!
+
+    c.plugins.options[Cinch::Plugins::BigBrother] = {
+      :channel => production? ? '#indie-ops' : '#indie-test'
+    }
   end
 
   on :message, "!help" do |m|
