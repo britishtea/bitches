@@ -67,7 +67,7 @@ module Cinch
 
         @bad_words.each do |bad_word|
           if msg.downcase.include? bad_word
-            msg.gsub! bad_word, "*#{bad_word}*"
+            msg.gsub! bad_word, Format(:bold, bad_word)
             
             if m.action?
               msg.gsub! 'ACTION ', ''
