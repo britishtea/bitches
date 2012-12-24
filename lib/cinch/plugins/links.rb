@@ -1,3 +1,5 @@
+require 'httparty'
+
 module Cinch
   module Plugins
     class Links
@@ -10,6 +12,7 @@ module Cinch
         :collage  => 'https://what.cd/collages.php?id=13264',
         :facebook => 'https://www.facebook.com/indievidualradio',
         :twitter  => 'https://twitter.com/indievidualme',
+        :mixtapes => 'http://www.mixcloud.com/indievidual/'
       }
       
       set :plugin_name, 'links'
@@ -17,6 +20,7 @@ module Cinch
       
       match /link(s)?$/i,         :group => :links, :method => :all_links
       match /link(?:s)? (\S+)?/i, :group => :links, :method => :one_link
+      match /mixtape$/i,                            :method => :mixtape
       
       def all_links(m)
         LINKS.each do |key, url| 
@@ -25,11 +29,20 @@ module Cinch
       end
       
       def one_link(m, option)
-        if LINKS.has_key? option.to_sym
+        if option == 'mixtape'
+          mixtape m
+        elsif LINKS.has_key? option.to_sym
           m.reply "#{option.capitalize}: #{LINKS[option.to_sym]}"
         else
           m.user.notice "I don't know of any links for #{option}."
         end
+      end
+
+      def mixtape(m)
+        url = 'http://api.mixcloud.com/indievidual/cloudcasts/'
+        mixtape = HTTParty.get(url, :format => :json)['data'].first
+
+        m.reply "#{mixtape['name']}: #{mixtape['url']}"
       end
     end
   end
