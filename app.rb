@@ -49,7 +49,7 @@ bot = Cinch::Bot.new do
     ]
     
     c.plugins.options[Cinch::Plugins::Identify] = {
-      :username => ENV['NICKSERV_PASS'] || '',
+      :password => ENV['NICKSERV_PASSWORD'] || '',
       :type     => :nickserv,
     }
     
