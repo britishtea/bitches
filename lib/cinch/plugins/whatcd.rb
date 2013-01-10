@@ -39,14 +39,14 @@ module Cinch
           request = results.first
           urls    = urls "requests.php?action=view&id=#{request['requestId']}"
 
-          m.reply "#{request['title']} => #{urls}"
+          m.reply "#{CGI.unescapeHTML request['title']} => #{urls}"
         end
       rescue => e
         error m, e
       end
 
       def rippy(m)
-        m.reply WhatCD::Rippy
+        m.reply CGI.unescapeHTML(WhatCD::Rippy)
       rescue => e
         error m, e
       end
@@ -66,12 +66,12 @@ module Cinch
           urls = urls "torrents.php?id=#{t['groupId']}"
 
           if !t.has_key? 'category'
-            msg = "#{t['artist']} - #{t['groupName']} (#{t['groupYear']}) => #{urls}"
+            msg = "#{t['artist']} - #{t['groupName']} (#{t['groupYear']})"
           else
-            msg = "#{t['groupName']} => #{urls}"
+            msg = "#{t['groupName']}"
           end
 
-          m.reply msg
+          m.reply "#{CGI.unescapeHTML msg} => #{urls}"
         end
       rescue => e
         error m, e
@@ -84,7 +84,9 @@ module Cinch
           m.reply "No results :("
         else
           user = results.first
-          m.reply "#{user['username']} => #{urls "user.php?id=#{user['userId']}"}"
+          msg = "#{CGI.unescapeHTML user['username']}"
+
+          m.reply "#{msg} => #{urls "user.php?id=#{user['userId']}"}"
         end
       rescue => e
         error m, e
