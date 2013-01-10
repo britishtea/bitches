@@ -65,7 +65,13 @@ module Cinch
           t    = results.first
           urls = urls "torrents.php?id=#{t['groupId']}"
 
-          m.reply "#{t['artist']} - #{t['groupName']} (#{t['groupYear']}) => #{urls}"
+          if !t.has_key? 'category'
+            msg = "#{t['artist']} - #{t['groupName']} (#{t['groupYear']}) => #{urls}"
+          else
+            msg = "#{t['groupName']} => #{urls}"
+          end
+
+          m.reply msg
         end
       rescue => e
         error m, e
