@@ -16,4 +16,5 @@ gem 'data_mapper', '~> 1.2.0'
 gem 'httparty', '0.8.2' # bug in imdb-party :(
 gem 'rake'
 gem 'slop'
+gem 'urban_dictionary'
 gem 'whatcd'

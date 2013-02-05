@@ -12,6 +12,7 @@ require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
 require 'cinch/plugins/whatcd'
 require 'cinch/plugins/big_brother'
+require 'cinch/plugins/slang'
 
 # Interal: Checks if the environment is production.
 #
@@ -45,7 +46,8 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::Fun,
       Cinch::Plugins::Links,
       Cinch::Plugins::What,
-      Cinch::Plugins::BigBrother
+      Cinch::Plugins::BigBrother,
+      Cinch::Plugins::Slang
     ]
     
     c.plugins.options[Cinch::Plugins::Identify] = {

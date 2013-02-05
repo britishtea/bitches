@@ -10,7 +10,7 @@ Bitches maintains a jukebox of choons.
 
 * `!choon [tag 1, [tag 2, …]]`: selects a random choon from the jukebox, matching the tags.
 * `!choon url [tag 1, [tag 2, …]]`: adds a choon to the jukebox.
-* `!choon --delete url` : deletes a choon from the jukebox*.
+* `!choon --delete url` : deletes a choon from the jukebox**\***.
 
 \* ops only
 
@@ -42,19 +42,26 @@ Bitches adds all pictures linked in the channel to a [gallery](http://indie-gall
 
 **Usage**: `-`
 
-* `!delete url`: deletes a picture from the gallery*.
+* `!delete url`: deletes a picture from the gallery**\***.
 
 \* ops only
+
+## Slang
+
+Bitches can search the [Urban Dictionary](http://urbandictionary.com/) for you.
+
+**Usage**: `!slang word`
 
 ### What
 
 Bitches can search [what.cd](https://what.cd) for you. It can search for torrents, requests and users. It also has some of that Rippy magic.
 
-**Usage**: `!what [request, rippy, torrent, user] [searchterm] [--extra parameter[, --extra parameter ...]]`
+**Usage**: `!what [request, rippy, torrent, user] searchterm [options]`
 
-* `!what [torrent] searchterm`: searches for a torrent with the name 'searchterm'.
-* `!what request searchterm`: searches for a request with the name 'searchterm'.
+* `!what searchterm [options]`: searches for a torrent with the name 'searchterm'.
+* `!what request searchterm [options]`: searches for a request with the name 'searchterm'.
+If no arguments are specified then the most recent requests are shown.
 * `!what rippy`: sends you one of Rippy's magnificent quotes. There's also `!rippy`.
-* `!what user searchterm`: searches for a user with the name 'searchterm'.
+* `!what user username [options]`: searches for a user with the name 'searchterm'.
 
 Sometimes you need a more advanced search query. Bitches got you covered. Any of the parameters described in [the What.cd JSON API](https://ssl.what.cd/wiki.php?action=article&id=998) can be sent to Bitches. For example, if you want the Crystal Castles album released in 2008, you can search for it using `!what [torrent] crystal castles - crystal castles --year 2008`. For a complete list of extra parameters, see [the API documentation](https://ssl.what.cd/wiki.php?action=article&id=998).
