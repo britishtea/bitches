@@ -1,0 +1,9 @@
+cinch -v 2.0.4
+cinch-authentication -v 0.1.0
+cinch-identify -v 1.4.1
+data_mapper -v 1.2.0
+rake -v 10.0.3
+slop -v 3.4.3
+urban_dictionary -v 0.0.2
+whatcd -v 0.1.5
+dm-postgres-adapter -v 1.2.0
