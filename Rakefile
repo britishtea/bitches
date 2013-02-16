@@ -11,9 +11,9 @@ namespace :run do
 	task :development do
 		ENV['ENVIRONMENT'] = 'development'
 		
-		unless ENV.has_key? 'DATABASE_URL'
-			ENV['DATABASE_URL'] = "sqlite://#{Dir.pwd}/../bitches-gallery/test_database"
-		end
+		#unless ENV.has_key? 'DATABASE_URL'
+			ENV['DATABASE_URL'] = "sqlite::memory:"
+		#end
 		
 		`bundle exec ruby -I lib app.rb`
 	end
