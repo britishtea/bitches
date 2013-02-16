@@ -4,6 +4,7 @@
 require 'cinch'
 require 'data_mapper'
 
+require 'cinch/extensions/authentication'
 require 'cinch/plugins/choons'
 require 'cinch/plugins/identify'
 require 'cinch/plugins/imdb'
@@ -37,24 +38,22 @@ bot = Cinch::Bot.new do
     c.user     = 'bitches'
     c.server   = 'irc.what-network.net'
     c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
+
+    c.authentication = Cinch::Configuration::Authentication.new
+    c.authentication.strategy = :channel_status
+    c.authentication.level    = :h
+    c.authentication.channel  = production? ? '#indie' : '#indie-test'
     
-    c.plugins.plugins = [
-      Cinch::Plugins::Choons,
-      Cinch::Plugins::Identify,
-      Cinch::Plugins::IMDb,
-      Cinch::Plugins::Media,
-      Cinch::Plugins::Fun,
-      Cinch::Plugins::Links,
-      Cinch::Plugins::What,
-      Cinch::Plugins::BigBrother,
-      Cinch::Plugins::Slang
-    ]
+    c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Fun,
+      Cinch::Plugins::Links, Cinch::Plugins::Slang]
     
+    c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
       :password => ENV['NICKSERV_PASSWORD'] || '',
       :type     => :nickserv,
     }
     
+    c.plugins.plugins << Cinch::Plugins::Media
     c.plugins.options[Cinch::Plugins::Media] = {
       :url           => 'http://indie-gallery.herokuapp.com/',
       :channel       => production? ? '#indie' : '#indie-test',
@@ -62,13 +61,16 @@ bot = Cinch::Bot.new do
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
     
+    c.plugins.plugins << Cinch::Plugins::Choons
     c.plugins.options[Cinch::Plugins::Choons] = { :channel => '#indie' }
 
+    c.plugins.plugins << Cinch::Plugins::What
     c.plugins.options[Cinch::Plugins::What] = {
       :username => ENV['WHATCD_USERNAME'],
       :password => ENV['WHATCD_PASSWORD']
     }
 
+    c.plugins.plugins << Cinch::Plugins::BigBrother
     c.plugins.options[Cinch::Plugins::BigBrother] = {
       :channel => production? ? '#indie-ops' : '#indie-test'
     }

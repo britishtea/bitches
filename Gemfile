@@ -9,6 +9,7 @@ group :production do
 end
 
 gem 'cinch'
+gem 'cinch-authentication'
 gem 'cinch-identify', :require => 'cinch/plugins/identify'
 gem 'cinch-imdb', :git => 'git://github.com/britishtea/cinch-imdb.git',
                   :require => 'cinch/plugins/imdb'

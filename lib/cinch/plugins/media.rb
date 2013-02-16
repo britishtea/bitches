@@ -1,12 +1,12 @@
 require 'net/http'
 
-require 'cinch/helpers/admin'
+require 'cinch/extensions/authentication'
 
 module Cinch
   module Plugins
     class Media
       include Cinch::Plugin
-      include Helpers::Admin
+      include Cinch::Extensions::Authentication
   
       set :plugin_name, 'media'
       set :help, "Usage: !media delete url."
@@ -45,15 +45,12 @@ module Cinch
 
       # Public: Removes an offensive link from the database.
       def delete(m, uri)
+        return unless authenticated? m
         opts  = { :url => uri }
         media = Models::Video.first(opts) || Models::Picture.first(opts)
+        media.destroy!
         
-        if authorized? Channel(@channel), m.user
-          media.destroy!
-          m.user.notice 'Aye!'
-        else
-          m.channel.action 'giggles'
-        end
+        m.user.notice 'Aye!'
       rescue => e
         bot.loggers.error e.message
         m.user.notice "I'm sorry, that didn't work."

@@ -1,13 +1,13 @@
 # encoding: utf-8
 require 'uri'
 
-require 'cinch/helpers/admin'
+require 'cinch/extensions/authentication'
 
 module Cinch
   module Plugins
     class Choons
       include Cinch::Plugin
-      include Helpers::Admin
+      include Cinch::Extensions::Authentication
       
       # Internal: An Array of genre Strings that suck.
       SUCK = ['dubstep', 'easy.listening', 'classic.rock']
@@ -90,14 +90,10 @@ module Cinch
       #
       # Returns nothing.
       def delete_choon(m, url)
-        choon = Models::Choon.first :url => url
+        return unless authenticated? m
         
-        if authorized? Channel(@channel), m.user
-          choon.destroy!
-          m.user.notice "Aye!"
-        else
-          m.channel.action "giggles"
-        end
+        Models::Choon.first(:url => url).destroy
+        m.user.notice "Aye!"
       rescue => e
         bot.loggers.error e.message
         m.user.notice "Something went wrong, choon most likely didn't exist."

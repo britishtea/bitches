@@ -1,8 +1,10 @@
+require 'cinch/extensions/authentication'
+
 module Cinch
   module Plugins
     class BigBrother
       include Cinch::Plugin
-      include Helpers::Admin
+      include Cinch::Extensions::Authentication
 
       set :plugin_name, 'badword'
       set :help, 'Usage: !badword (add|delete|list) badword.'
@@ -21,7 +23,7 @@ module Cinch
       end
 
       def add_bad_word(m, bad_word)
-        return unless authorized? Channel('#indie'), m.user
+        return unless authenticated? m
 
         word = Models::Badword.create :word => bad_word
         word.save
@@ -36,7 +38,7 @@ module Cinch
       end
 
       def remove_bad_word(m, bad_word)
-        return unless authorized? Channel('#indie'), m.user
+        return unless authenticated? m
 
         word = Models::Badword.first :word => bad_word
         word.destroy!
@@ -61,7 +63,10 @@ module Cinch
       def listen(m)
         return unless m.channel?
         return if m.message.start_with?('!badword')
-        return if authorized? Channel('#indie'), m.user
+
+        [:q, :a, :o, :h].each do |mode|
+          return if m.channel.users[m.user].include? mode.to_s
+        end
 
         msg = m.message
 
