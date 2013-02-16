@@ -38,7 +38,7 @@ Bitches has a handy list of links that are associated with the channel in one wa
 
 ### Media
 
-Bitches adds all pictures linked in the channel to a [gallery](http://indie-gallery.no.de). It ignores pictures that are specified as *nsfw*, *nsfl* (please do), *ignore* and *personal*.
+Bitches adds all pictures linked in the channel to a [gallery](http://indie-gallery.herokuapp.com). It ignores pictures that are specified as *nsfw*, *nsfl* (please do), *ignore* and *personal*.
 
 **Usage**: `-`
 
