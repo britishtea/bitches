@@ -5,11 +5,9 @@ require 'cinch'
 require 'data_mapper'
 
 require 'cinch/extensions/authentication'
-require 'cinch/plugins/choons'
 require 'cinch/plugins/identify'
 require 'cinch/plugins/imdb'
 require 'cinch/plugins/media'
-require 'cinch/plugins/fun'
 require 'cinch/plugins/links'
 require 'cinch/plugins/whatcd'
 require 'cinch/plugins/big_brother'
@@ -44,8 +42,8 @@ bot = Cinch::Bot.new do
     c.authentication.level    = :h
     c.authentication.channel  = production? ? '#indie' : '#indie-test'
     
-    c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Fun,
-      Cinch::Plugins::Links, Cinch::Plugins::Slang]
+    c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Links, 
+      Cinch::Plugins::Slang]
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -60,9 +58,6 @@ bot = Cinch::Bot.new do
       :ignored_hosts => ['images.4chan.org', 'https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
-    
-    c.plugins.plugins << Cinch::Plugins::Choons
-    c.plugins.options[Cinch::Plugins::Choons] = { :channel => '#indie' }
 
     c.plugins.plugins << Cinch::Plugins::What
     c.plugins.options[Cinch::Plugins::What] = {
