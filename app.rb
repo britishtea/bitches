@@ -1,9 +1,4 @@
-# require 'bundler/setup'
-# Bundler.require :default
-# Bundler.require ENV['ENVIRONMENT'].to_sym
 require 'cinch'
-require 'data_mapper'
-
 require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'
 require 'cinch/plugins/imdb'
@@ -21,20 +16,19 @@ def production?
 end
 
 # Set up DataMapper
-DataMapper.setup :default, ENV['DATABASE_URL']
-
+require 'data_mapper'
 require 'bitches/models'
-require 'bitches/models/bad_word'
 
+DataMapper.setup :default, ENV['DATABASE_URL']
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
 # Set up the Cinch::Bot
 bot = Cinch::Bot.new do
   configure do |c|
-    c.nick     = production? ? 'bitches' : 'testes'
-    c.user     = 'bitches'
     c.server   = 'irc.what-network.net'
+    c.nick     = production? ? ENV['NICKNAME'] : "#{ENV['NICKNAME']}_test"
+    c.user     = ENV['NICKNAME']
     c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
 
     c.authentication = Cinch::Configuration::Authentication.new
@@ -72,7 +66,7 @@ bot = Cinch::Bot.new do
   end
 
   on :message, "!help" do |m|
-    m.reply "See http://goo.gl/ZFy1V"
+    m.reply "See http://goo.gl/ZFy1V."
   end
 end
 
