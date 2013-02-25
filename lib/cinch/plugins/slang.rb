@@ -6,7 +6,7 @@ module Cinch
       include Cinch::Plugin
 
       set :plugin_name, 'slang'
-      set :help, 'Usage: !slang word'
+      set :help, 'Usage: !slang <word>.'
 
       match /slang (.+)/i, :method => :slang
 

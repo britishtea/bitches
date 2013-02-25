@@ -9,7 +9,7 @@ module Cinch
       include Cinch::Extensions::Authentication
   
       set :plugin_name, 'media'
-      set :help, "Usage: !media delete url."
+      set :help, "Usage: !media delete <url>."
       
       match /(?:media )?del(?:ete)? (.+)/i, :group => :uris, :method => :delete
       match /(.*http.*)/i,                :group => :uris, :method => :add_media, 

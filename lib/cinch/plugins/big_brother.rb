@@ -7,7 +7,7 @@ module Cinch
       include Cinch::Extensions::Authentication
 
       set :plugin_name, 'badword'
-      set :help, 'Usage: !badword (add|delete|list) badword.'
+      set :help, 'Usage: !badword (add|delete|list) <badword>.'
 
       match /badword add (.+)/i,     :group => :a, :method => :add_bad_word
       match /badword delete (.+)/i,  :group => :a, :method => :remove_bad_word

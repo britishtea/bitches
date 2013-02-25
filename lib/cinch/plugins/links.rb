@@ -9,14 +9,15 @@ module Cinch
         :tumblr   => 'http://whatindie.tumblr.com/',
         :gallery  => 'http://indie-gallery.herokuapp.com/',
         :stats    => 'http://zhaan.org/ircstats/indie/',
-        :collage  => '2013: https://what.cd/collages.php?id=16144, 2012: https://what.cd/collages.php?id=13264',
+        :collage  => '2013: https://what.cd/collages.php?id=16144, ' + 
+          '2012: https://what.cd/collages.php?id=13264',
         :facebook => 'https://www.facebook.com/indievidualradio',
         :twitter  => 'https://twitter.com/indievidualme',
         :mixtapes => 'http://www.mixcloud.com/indievidual/'
       }
       
       set :plugin_name, 'links'
-      set :help, "Usage: !link[s] [#{LINKS.keys.join ' / '}]"
+      set :help, "Usage: !link[s] [(#{LINKS.keys.join '|'})]."
       
       match /link(s)?$/i,         :group => :links, :method => :all_links
       match /link(?:s)? (\S+)?/i, :group => :links, :method => :one_link

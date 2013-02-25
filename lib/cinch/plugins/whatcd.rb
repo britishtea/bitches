@@ -9,14 +9,15 @@ module Cinch
       include Cinch::Plugin
       
       set :plugin_name, 'what'
-      set :help, 'Usage: !what [request, rippy, torrent, user] [searchterm] [--extra parameter[, --extra parameter ...]].'
+      set :help, 'Usage: !what [(request|rippy|torrent|user)] [<searchterm>] ' +
+        '[--<parameter> <value> ...].'
       
       match /what -{0,2}requests? (.+)/i, :group => :what, :method => :request
       match /what -{0,2}rippy/i,          :group => :what, :method => :rippy
       match /what -{0,2}torrents? (.+)/i, :group => :what, :method => :torrent
       match /what -{0,2}users? (.+)/i,    :group => :what, :method => :user
       match /what (.+)?/i,                :group => :what, :method => :torrent
-      match /rippy/i,                                      :method => :rippy
+      match /rippy$/i,                                     :method => :rippy
       
       # Initializes the plugin.
       def initialize(*args)
