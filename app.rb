@@ -3,6 +3,7 @@ require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'
 require 'cinch/plugins/imdb'
 require 'cinch/plugins/media'
+require 'cinch/plugins/lastfm'
 require 'cinch/plugins/links'
 require 'cinch/plugins/whatcd'
 require 'cinch/plugins/big_brother'
@@ -43,6 +44,12 @@ bot = Cinch::Bot.new do
     c.plugins.options[Cinch::Plugins::Identify] = {
       :password => ENV['NICKSERV_PASSWORD'] || '',
       :type     => :nickserv,
+    }
+
+    c.plugins.plugins << Cinch::Plugins::LastFM
+    c.plugins.options[Cinch::Plugins::LastFM] = {
+      :api_key    => ENV['LASTFM_KEY'],
+      :api_secret => ENV['LASTFM_SECRET']
     }
     
     c.plugins.plugins << Cinch::Plugins::Media
