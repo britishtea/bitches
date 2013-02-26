@@ -106,7 +106,7 @@ module Cinch
         m.reply "You have been registered as #{username}."
       rescue => e
         bot.loggers.error e.message
-        m.user.notice "Something went wrong."
+        m.reply "Something went wrong."
       end
 
       def user(m, user = nil)

@@ -16,7 +16,7 @@ module Cinch
         )
 
         if user.recommendations.empty?
-          m.user.notice "No recommendations."
+          m.reply "No recommendations."
           return
         end
 
@@ -37,9 +37,9 @@ module Cinch
         )
 
         if user.recommendations.destroy
-          m.user.notice "Your recommendations were deleted."
+          m.reply "Your recommendations were deleted."
         else
-          m.user.notice "Something went wrong."
+          m.reply "Something went wrong."
         end
       end
 
@@ -57,7 +57,7 @@ module Cinch
           :recommendation => recommendation
         )
 
-        m.user.notice rec.save ? "Okay." : "Something went wrong."
+        m.reply rec.save ? "Okay." : "Something went wrong."
       end
     end
   end
