@@ -4,7 +4,7 @@ module Cinch
       include Cinch::Plugin
       
       set :plugin_name, 'rec'
-      set :help, 'Usage: !rec (get|<username> <recommendation>).'
+      set :help, 'Usage: !rec (get|clear|<username> <recommendation>).'
       
       match /rec get/i,        :group => :rec, :method => :get
       match /rec clear/i,      :group => :rec, :method => :clear
