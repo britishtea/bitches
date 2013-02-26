@@ -6,18 +6,14 @@ module Cinch
       include Cinch::Plugin
       
       set :plugin_name, 'last'
-      set :help, 'Usage: !np [<username>], !compare <one> [<two>], ' +
-        '!setusername <username>.'
+      set :help, 'Usage: see http://goo.gl/ZFy1V.'
       
-      match /np(?: (\S+))?/i,                 :method => :now_playing
-      match /co(?:mpare)? (\S+)(?: (\S+))?/i, :method => :compare
-      match /setusername (\S+)/i,             :method => :set_username
-
-      match /user(?: (\S+))?/i,               :method => :user
-      match /similar(?: (.+))?/i,             :method => :similar
-
-      match /artist(?: (\S+))?/i,             :method => :artist
-      match /tag(?: (\S+))?/i,                :method => :tag
+      match /np(?: (\S+))?/i,                   :method => :now_playing
+      match /co(?:mpare)? (\S+)(?: (\S+))?/i,   :method => :compare
+      match /setusername (\S+)/i,               :method => :set_username
+      match /(?:getusername|user)(?: (\S+))?/i, :method => :get_username
+      match /similar(?: (.+))?/i,               :method => :similar
+      match /artist(?: (.+))?/i,                :method => :artist
 
       def initialize(*args)
         super
@@ -26,21 +22,8 @@ module Cinch
       end
 
       def now_playing(m, username = nil)
-        user = Models::User.first :nickname => username || current_user(m)
-
-        if user.nil? || user.lastfm_name.nil?
-          if username.nil?
-            m.user.notice "You haven't registered yet, #{m.user.nick} is " +
-              "assumed as your last.fm username. You can register with " +
-              "!setusername <last.fm username>."
-          elsif User(username).channels.one? { |c| c == m.channel }
-            m.user.notice "#{username} hasn't registered yet, #{username} is " +
-              "assumed as his/her last.fm username."
-          end
-        end
-
         track = @client.user.get_recent_tracks(
-          :user => user.nil? ? (username || current_user(m)) : user.lastfm_name,
+          :user => find_lastfm_username(m, username),
           :limit => 1
         )
 
@@ -59,21 +42,21 @@ module Cinch
         m.reply "#{username || m.user.nick} is now playing #{artist} - " +
           "#{track['name']}."
       rescue Lastfm::ApiError => e
-        m.reply "Something went wrong (#{e.message.gsub(/\s+/, ' ').strip})."
+        m.reply e.message.gsub(/\s+/, ' ').strip
       rescue => e
         bot.loggers.error e.message
         m.reply "Something went wrong."
       end
 
       def compare(m, one, two = nil)
-        user_one = Models::User.first :nickname => one
-        user_two = Models::User.first :nickname => two || current_user(m)
+        user     = Models::User.first :nickname => one
+        username = user.nil? || user.lastfm_name.nil? ? one : user.lastfm_name
 
         tasteometer = @client.tasteometer.compare(
           :type1 => 'user', 
           :type2 => 'user',
-          :value1 => user_one.nil? ? one : user_one.lastfm_name,
-          :value2 => user_two.nil? ? (two || current_user(m)) : user_two.lastfm_name,
+          :value1 => username,
+          :value2 => find_lastfm_username(m, two), 
           :limit => 5
         )
 
@@ -82,18 +65,15 @@ module Cinch
         msg     = "#{one} and #{two || m.user.nick} are #{score.round 2}% " +
           "alike."
 
-        if matches > 1
+        if matches > 0
           artists = tasteometer['artists']['artist'].map { |a| a['name'] }
 
-          msg << "They have both listened to #{artists[0..-2].join ', '} " +
-            "and #{artists.last}."
-        elsif matches == 1
-          msg << "They have both listened to #{artists.first}."
+          msg << "They have both listened to #{enumerate artists}."
         end
 
         m.reply msg
       rescue Lastfm::ApiError => e
-        m.reply "Something went wrong (#{e.message.gsub(/\s+/, ' ').strip})."
+        m.reply e.message.gsub(/\s+/, ' ').strip
       rescue => e
         bot.loggers.error e.message
         m.reply "Something went wrong."
@@ -109,22 +89,124 @@ module Cinch
         m.reply "Something went wrong."
       end
 
-      def user(m, user = nil)
+      def get_username(m, username = nil)
+        user = @client.user.get_info :user => find_lastfm_username(m, username)
+
+        m.reply "#{username || m.user.nick} is #{user['name']} on Last.fm and" +
+          " has #{user['playcount']} scrobbles (#{user['url']})."
+      rescue Lastfm::ApiError => e
+        m.reply e.message.gsub(/\s+/, ' ').strip
+      rescue => e
+        bot.loggers.error e.message
+        m.reply "Something went wrong."
       end
 
       def similar(m, artist = nil)
+        if artist.nil?
+          track = @client.user.get_recent_tracks(
+            :user => find_lastfm_username(m),
+            :limit => 1
+          )
+
+          track = track.first if track.is_a? Array
+
+          if track.nil?
+            m.reply "Please provide an artist name."
+            return
+          end
+
+          artist = track['artist']['content']
+        end
+
+        similar = @client.artist.get_similar :artist => artist, :limit => 5
+        artists = similar[1..-1].map { |a| a['name'] }
+
+        if artists[1].empty?
+          m.reply "#{similar.first} is too unique to be similar to others."
+        else
+          m.reply "#{similar.first} is similar to #{enumerate artists}." 
+        end
+      rescue Lastfm::ApiError => e
+        m.reply e.message.gsub(/\s+/, ' ').strip
+      rescue => e
+        bot.loggers.error e.message
+        m.reply "Something went wrong."
       end
 
-      def artist(m, artist = nil)
-      end
+      def artist(m, artist_name = nil)
+        if artist_name.nil?
+          track = @client.user.get_recent_tracks(
+            :user => find_lastfm_username(m),
+            :limit => 1
+          )
 
-      def tag(m, tag = nil)
+          track = track.first if track.is_a? Array
+
+          if track.nil?
+            m.reply "Please provide an artist name."
+            return
+          end
+
+          artist_name = track['artist']['content']
+        end
+
+        artist = @client.artist.get_info(
+          :artist => artist_name, :username => find_lastfm_username(m)
+        )
+
+        message = artist['name']
+
+        if artist['tags'].has_key? 'tag'
+          tags = artist['tags']['tag'][0..2].map { |tag| tag['name'] }
+
+          message << " makes #{enumerate tags} music " unless tags.empty?
+        end
+
+        message << "and has #{artist['stats']['listeners']} listeners."
+
+        if artist['stats'].has_key? 'userplaycount'
+          message << " You scrobbled them #{artist['stats']['userplaycount']}" +
+          " times."
+        end
+
+        m.reply message
+      rescue Lastfm::ApiError => e
+        m.reply e.message.gsub(/\s+/, ' ').strip
+      rescue => e
+        bot.loggers.error e.message
+        m.reply "Something went wrong."
       end
 
     private
 
-      def current_user(m)
-        m.user.authname || m.user.nick
+      def find_lastfm_username(m, username = nil)
+        nickname = m.user.authname || m.user.nick
+        user     = Models::User.first :nickname => username || nickname
+
+        if user.nil? || user.lastfm_name.nil?
+          if username.nil?
+            m.user.notice "You haven't registered yet, #{m.user.nick} is " +
+              "assumed as your last.fm username. You can register with " +
+              "!setusername <last.fm username>."
+
+            return nickname
+          elsif User(username).channels.one? { |c| c == m.channel }
+            m.user.notice "#{username} hasn't registered yet, #{username} is " +
+              "assumed as his/her last.fm username."
+          end
+
+          return username
+        end
+        
+        return user.lastfm_name
+      end
+
+      def enumerate(array)
+        if array.size > 1
+          "#{array[0..-2].join ', '} and #{array.last}"
+        elsif array.size == 1
+          array.first
+        end
       end
     end
   end
