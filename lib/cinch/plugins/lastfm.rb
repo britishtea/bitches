@@ -5,13 +5,19 @@ module Cinch
     class LastFM
       include Cinch::Plugin
       
-      set :plugin_name, 'last.fm'
+      set :plugin_name, 'last'
       set :help, 'Usage: !np [<username>], !compare <one> [<two>], ' +
         '!setusername <username>.'
       
-      match /np(?: (\S+))?/i,            :method => :now_playing
-      match /compare (\S+)(?: (\S+))?/i, :method => :compare
-      match /setusername (\S+)/i,        :method => :set_username
+      match /np(?: (\S+))?/i,                 :method => :now_playing
+      match /co(?:mpare)? (\S+)(?: (\S+))?/i, :method => :compare
+      match /setusername (\S+)/i,             :method => :set_username
+
+      match /user(?: (\S+))?/i,               :method => :user
+      match /similar(?: (.+))?/i,             :method => :similar
+
+      match /artist(?: (\S+))?/i,             :method => :artist
+      match /tag(?: (\S+))?/i,                :method => :tag
 
       def initialize(*args)
         super
@@ -53,7 +59,7 @@ module Cinch
         m.reply "#{username || m.user.nick} is now playing #{artist} - " +
           "#{track['name']}."
       rescue Lastfm::ApiError => e
-        m.reply "Something went wrong: #{e.message}."
+        m.reply "Something went wrong (#{e.message.gsub(/\s+/, ' ').strip})."
       rescue => e
         bot.loggers.error e.message
         m.reply "Something went wrong."
@@ -72,11 +78,25 @@ module Cinch
         )
 
         score   = Float(tasteometer['score']) * 100
-        artists = tasteometer['artists']['artist'].map { |a| a['name'] }
+        matches = Integer(tasteometer['artists']['matches'])
+        msg     = "#{one} and #{two || m.user.nick} are #{score.round 2}% " +
+          "alike."
 
-        m.reply "#{one} and #{two || m.user.nick} are #{score.round 2}% " +
-          "alike. They have both have listened to #{artists[0..3].join(', ')}" +
-          " and #{artists.last}."
+        if matches > 1
+          artists = tasteometer['artists']['artist'].map { |a| a['name'] }
+
+          msg << "They have both listened to #{artists[0..-2].join ', '} " +
+            "and #{artists.last}."
+        elsif matches == 1
+          msg << "They have both listened to #{artists.first}."
+        end
+
+        m.reply msg
+      rescue Lastfm::ApiError => e
+        m.reply "Something went wrong (#{e.message.gsub(/\s+/, ' ').strip})."
+      rescue => e
+        bot.loggers.error e.message
+        m.reply "Something went wrong."
       end
 
       def set_username(m, username)
@@ -89,6 +109,18 @@ module Cinch
         m.user.notice "Something went wrong."
       end
 
+      def user(m, user = nil)
+      end
+
+      def similar(m, artist = nil)
+      end
+
+      def artist(m, artist = nil)
+      end
+
+      def tag(m, tag = nil)
+      end
+
     private
 
       def current_user(m)
@@ -97,4 +129,3 @@ module Cinch
     end
   end
 end
-
