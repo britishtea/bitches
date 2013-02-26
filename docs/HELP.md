@@ -1,8 +1,8 @@
-## !help
+# !help
 
 Bitches is your bitch. For quick help on IRC, simply type `!help [module]` (e.g. `!help choons`).
 
-### IMDb
+## IMDb
 
 Bitches can search the [IMDb](http://imdb.com) for you.
 
@@ -15,7 +15,20 @@ Bitches can search the [IMDb](http://imdb.com) for you.
 
 Possible details are `title`, `imdb_id`, `tagline`, `plot`, `runtime`, `rating`, `release_date`, `poster_url`, `certification`, `trailer`, `genres`, `writers`, `directors` and `actors`.
 
-### Links
+## Last
+
+**Usage**: `-`
+
+* `!artist [<artist name>]`: looks up artist information.
+* `!compare <nickname one> [<nickname two>]`: compares two users.
+* `!getusername [<nickname>]`: looks up your or `nickname`'s last.fm username.
+* `!np [<nickname>]`: looks up the track you or 'nickname' is currently listening to.
+* `!setusername <last.fm username>`: registers your last.fm username with bitches.
+* `!similar [<artist name>]`: looks up similar artists.*
+
+\* The artist name listened to the artist last listened to if no artist is given.
+
+## Links
 
 Bitches has a handy list of links that are associated with the channel in one way or another.
 
@@ -24,7 +37,7 @@ Bitches has a handy list of links that are associated with the channel in one wa
 * `!links`: sends you *all* links as NOTICEs.
 * `!link <link name>`: sends you the one link you specified (e.g. `!link collage`).
 
-### Media
+## Media
 
 Bitches adds all pictures linked in the channel to a [gallery](http://indie-gallery.herokuapp.com). It ignores pictures that are specified as *nsfw*, *nsfl* (please do), *ignore* and *personal*.
 
@@ -34,13 +47,27 @@ Bitches adds all pictures linked in the channel to a [gallery](http://indie-gall
 
 \* ops only
 
+## Recommend
+
+**Usage**: `!rec (clear|get|<nickname> <recommendation>)`
+
+* `!rec clear`: deletes all recommendations.
+* `!rec get`: gets all reccomendations.
+* `!rec <nickname> <recommendation>`: makes a recommendation to `<nickname>`.
+
 ## Slang
 
 Bitches can search the [Urban Dictionary](http://urbandictionary.com/) for you.
 
 **Usage**: `!slang <word>`
 
-### What
+## Weather
+
+**Usage**: `!weather [<location>]`
+
+* The location defaults to the location you last used.
+
+## What
 
 Bitches can search [what.cd](https://what.cd) for you. It can search for torrents, requests and users. It also has some of that Rippy magic.
 
