@@ -9,6 +9,7 @@ require 'cinch/plugins/whatcd'
 require 'cinch/plugins/big_brother'
 require 'cinch/plugins/slang'
 require 'cinch/plugins/recommend'
+require 'cinch/plugins/weather'
 
 # Interal: Checks if the environment is production.
 #
@@ -39,7 +40,7 @@ bot = Cinch::Bot.new do
     c.authentication.channel  = production? ? '#indie' : '#indie-test'
     
     c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Links, 
-      Cinch::Plugins::Slang, Cinch::Plugins::Recommend]
+      Cinch::Plugins::Slang, Cinch::Plugins::Recommend, Cinch::Plugins::Weather]
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
