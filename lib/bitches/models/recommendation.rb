@@ -3,7 +3,7 @@ module Models
     include DataMapper::Resource
 
     property :id,             Serial
-    property :recommendation, String, :required => true
+    property :recommendation, Text, :required => true
 
     belongs_to :user
     belongs_to :source, 'User', :key => true

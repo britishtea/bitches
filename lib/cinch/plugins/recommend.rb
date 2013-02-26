@@ -11,20 +11,30 @@ module Cinch
       match /rec (\S+) (.+)/i, :group => :rec, :method => :add
 
       def get(m)
-        user = Models::User.first_or_create :nickname => m.user.authname || m.user.nick
+        user = Models::User.first_or_create(
+          :nickname => m.user.authname || m.user.nick
+        )
 
         if user.recommendations.empty?
           m.user.notice "No recommendations."
           return
         end
 
-        user.recommendations.each do |rec|
-          m.user.notice "#{rec.source.nickname} recommends #{rec.recommendation}."
+        message = user.recommendations.inject("") do |msg, rec|
+          msg << "#{rec.source.nickname} recommends #{rec.recommendation}. "
+        end
+
+        if message.length > (510 - 15 - bot.mask.to_s.length)
+          m.user.msg message.rstrip
+        else
+          m.reply message.rstrip
         end
       end
 
       def clear(m)
-        user = Models::User.first_or_create :nickname => m.user.authname || m.user.nick
+        user = Models::User.first_or_create(
+          :nickname => m.user.authname || m.user.nick
+        )
 
         if user.recommendations.destroy
           m.user.notice "Your recommendations were deleted."
@@ -34,8 +44,12 @@ module Cinch
       end
 
       def add(m, user, recommendation)
-        from = Models::User.first_or_create :nickname => m.user.authname || m.user.nick
-        user = Models::User.first_or_create :nickname => User(user).authname || user
+        from = Models::User.first_or_create(
+          :nickname => m.user.authname || m.user.nick
+        )
+        user = Models::User.first_or_create(
+          :nickname => User(user).authname || user
+        )
 
         rec = Models::Recommendation.new(
           :user => user,
