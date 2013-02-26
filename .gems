@@ -8,3 +8,4 @@ urban_dictionary -v 0.0.2
 whatcd -v 0.1.5
 dm-postgres-adapter -v 1.2.0
 lastfm -v 1.16.0
+cinch-title -v 0.3.1

@@ -10,6 +10,7 @@ require 'cinch/plugins/big_brother'
 require 'cinch/plugins/slang'
 require 'cinch/plugins/recommend'
 require 'cinch/plugins/weather'
+require 'cinch/plugins/title'
 
 # Interal: Checks if the environment is production.
 #
@@ -26,6 +27,13 @@ DataMapper.setup :default, ENV['DATABASE_URL']
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
+# Change title response format
+class Cinch::Plugins::Title
+  def response(m, uri)
+    "Title: #{uri}"
+  end
+end
+
 # Set up the Cinch::Bot
 bot = Cinch::Bot.new do
   configure do |c|
@@ -40,7 +48,8 @@ bot = Cinch::Bot.new do
     c.authentication.channel  = production? ? '#indie' : '#indie-test'
     
     c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Links, 
-      Cinch::Plugins::Slang, Cinch::Plugins::Recommend, Cinch::Plugins::Weather]
+      Cinch::Plugins::Slang, Cinch::Plugins::Recommend, Cinch::Plugins::Weather,
+      Cinch::Plugins::Title]
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -83,7 +92,7 @@ end
 bot.loggers.level = :info
 
 # Quit with an appropriate message
-Signal.trap('TERM') { bot.quit 'Bye' }
+Signal.trap('SIGINT') { bot.quit 'Bye' }
 
 # Start the Cinch::Bot
 bot.start
