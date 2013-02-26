@@ -8,9 +8,10 @@ module Cinch
       include Cinch::Plugin
 
       # TODO: Find a decent Yahoo! Weather API wrapper.
+      set :plugin_name, 'weather'
+      set :help, 'Usage: !weather [<location>].'
 
       match /weather(?: (.+))?/s, method: :weather
-      match /weather forecast/s, method: :forecast
 
       def initialize(*args)
         super
@@ -43,13 +44,14 @@ module Cinch
           "#{Integer(weather.condition['temp']) * 1.8 + 32}º F)"
         wind      = "Wind: #{weather.wind['speed']} #{weather.units['speed']}" +
           ", #{wind_direction_name weather.wind['direction']}"
-        humidity  = "Humidity: #{weather.atmosphere['humidity']}"
+        humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
 
-        m.reply "#{loc}: #{condition}, #{temp}. #{wind}. #{humidity}."
-      end
+        fc  = weather.forecasts.first
+        tomorrow  = "#{fc['text']}, #{fc['low']}-#{fc['high']}º C (" +
+          "#{fc['low'] * 1.8 + 32}-#{fc['high'] * 1.8 + 32}º F)"
 
-      def forecast(m, location)
-        
+        m.reply "#{loc}: #{condition}, #{temp}. #{wind}. #{humidity}. " +
+          "Tomorrow: #{tomorrow}."
       end
 
     private
