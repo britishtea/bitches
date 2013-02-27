@@ -37,7 +37,7 @@ end
 # Set up the Cinch::Bot
 bot = Cinch::Bot.new do
   configure do |c|
-    c.server   = 'irc.what-network.net'
+    c.server   = ENV['SERVER']
     c.nick     = production? ? ENV['NICKNAME'] : "#{ENV['NICKNAME']}_test"
     c.user     = ENV['NICKNAME']
     c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
