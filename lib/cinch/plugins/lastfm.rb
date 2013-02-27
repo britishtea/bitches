@@ -80,7 +80,9 @@ module Cinch
       end
 
       def set_username(m, username)
-        user = Models::User.first_or_create :nickname => current_user(m)
+        nickname = m.user.authname || m.user.nick
+        
+        user = Models::User.first_or_create :nickname => nickname
         user.update :lastfm_name => username
 
         m.reply "You have been registered as #{username}."
