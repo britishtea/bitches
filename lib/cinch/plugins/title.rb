@@ -3,50 +3,78 @@
 # Copyright (c) 2010 Victor Bergoo
 # This program is made available under the terms of the MIT License.
 
+require 'httparty'
 require 'nokogiri'
-require 'net/http'
 require 'cgi'
 
 module Cinch
   module Plugins
     class Title
       include Cinch::Plugin
+      include HTTParty
       
-      match /(.*http.*)/, :use_prefix => false, :method => :execute
+      match /(.*http.*)/, :use_prefix => false, :method => :handle_url
+
+      class << self
+        attr_reader :cookies, :default_handler, :handlers
+        
+        def cookie(host, cookiestring)
+          (@cookies ||= {})[host] = cookiestring
+        end
+
+        def handler(host, &handler)
+          (@handlers ||= {})[host] = handler
+        end
+
+        def default(&handler)
+          @default_handler = handler
+        end
+      end
+
+      def initialize(*args)
+        super
+
+        @cookies  = self.class.cookies || {}
+        @handlers = self.class.handlers || {}
+        @default  = self.class.default_handler || Proc.new do |m, uri, cookies|
+          options          = {}
+          options[:header] = { 'Cookie' => cookies } unless cookies.nil?
+          response         = HTTParty.get uri.to_s, options
+
+          if response.code == 200
+            title = Nokogiri::HTML(response.body).at_xpath('//title').text
+            title.gsub(/\s+/, ' ').strip!
+        
+            m.reply "Title: #{CGI.unescape_html title}" unless title.nil?
+          end
+        end
+      end
       
-      def execute m, message
+      def handle_url(m, message)
         URI.extract message, ["http", "https"] do |uri|
           begin
             next if ignore uri
 
-            title = parse URI(uri)
-            
-            m.reply "Title: #{title}" unless title.nil?
-          rescue URI::InvalidURIError
+            uri     = URI uri
+            handler = @handlers[uri.host] || @default
+
+            handler.call m, uri, @cookies[uri.host]
+          rescue => e
+            bot.loggers.error e.message
+            bot.loggers.error e.backtrace
             next
           end
         end
-      rescue => e
-        bot.loggers.error e.message
       end
 
     private
-
-      def parse(uri)
-        html  = Nokogiri::HTML Net::HTTP.get_response(uri).body
-        title = html.at_xpath('//title')
-        
-        
-        title.nil? ? nil : CGI.unescape_html(title.text.gsub(/\s+/, ' '))
-      end
       
-      def ignore uri
-        ignore = ["jpg$", "JPG$", "jpeg$", "gif$", "png$", "bmp$", "pdf$", "jpe$"]
+      def ignore(uri)
+        ignore = ["jpg$", "JPG$", "jpeg$", "gif$", "png$", "bmp$", "pdf$",
+          "jpe$"]
         ignore.concat(config["ignore"]) if config.key? "ignore"
         
-        ignore.each do |re|
-          return true if uri =~ /#{re}/
-        end
+        ignore.each { |re| return true if uri =~ /#{re}/ }
         
         false
       end
