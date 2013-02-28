@@ -86,6 +86,10 @@ bot = Cinch::Bot.new do
   on :message, "!help" do |m|
     m.reply "See http://goo.gl/ZFy1V."
   end
+
+  on :message, "!ping" do |m|
+    m.reply 'pong'
+  end
 end
 
 # Configure loggers
