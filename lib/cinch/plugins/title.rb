@@ -13,7 +13,8 @@ module Cinch
       include Cinch::Plugin
       include HTTParty
       
-      match /(.*http.*)/, :use_prefix => false, :method => :handle_url
+      match /.*http.*/, :use_prefix => false, :method => :handle_url
+      match /www\..*/,  :use_prefix => false, :method => :handle_url
 
       class << self
         attr_reader :cookies, :default_handler, :handlers
@@ -37,7 +38,7 @@ module Cinch
         @cookies  = self.class.cookies || {}
         @handlers = self.class.handlers || {}
         @default  = self.class.default_handler || Proc.new do |m, uri, cookies|
-          options          = {}
+          options          = { :follow_redirects => true }
           options[:header] = { 'Cookie' => cookies } unless cookies.nil?
           res              = HTTParty.get uri.to_s, options
 
@@ -52,8 +53,10 @@ module Cinch
         end
       end
       
-      def handle_url(m, message)
-        URI.extract message, ["http", "https"] do |uri|
+      def handle_url(m)
+        msg = m.message.gsub 'www.', 'http://www.'
+
+        URI.extract msg, ["http", "https"] do |uri|
           begin
             next if ignore uri
 
