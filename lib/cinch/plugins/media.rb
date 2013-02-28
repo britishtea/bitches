@@ -20,25 +20,33 @@ module Cinch
         super
 
         @url           = self.config[:url]
-        @channel       = self.config[:channel]
-        @ignored_hosts = self.config[:ignored_hosts]
-        @ignored_tags  = self.config[:ignored_tags]
+        @channels      = self.config[:channels] || []
+        @ignored_hosts = self.config[:ignored_hosts] || []
+        @ignored_tags  = self.config[:ignored_tags] || []
       end
 
       # Public: Adds media to the database
       def add_media(m)
         return if ignore?(m.message)
-        #return unless @channels.include?(m.channel)
+        return unless @channels.include?(m.channel)
+
+        nickname = m.user.authname || m.user.nick
+        user     = Models::User.first_or_create :nickname => nickname
 
         URI.extract m.message, ['http', 'https'] do |uri|
-          next if @ignored_hosts.include? URI(uri).host
+          begin
+            parsed_uri = URI(uri)
+            response   = Net::HTTP.get_response parsed_uri
 
-          user = Models::User.first_or_create :nickname => m.user.nick
+            next if @ignored_hosts.include? parsed_uri.host
 
-          if URI(uri).host =~ /youtu(\.be.*|be\.\S{1,4}.*)/i
-            add_video uri, user
-          elsif Net::HTTP.get_response(URI(uri))['content-type'] =~ /^image\//i
-            add_picture uri, user
+            if parsed_uri.host =~ /youtu(\.be.*|be\.\S{1,4}.*)/i
+              add_video uri, user
+            elsif response['content-type'] =~ /^image\//i
+              add_picture uri, user
+            end
+          rescue => e
+            next
           end
         end
       end

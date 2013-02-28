@@ -66,7 +66,7 @@ bot = Cinch::Bot.new do
     c.plugins.plugins << Cinch::Plugins::Media
     c.plugins.options[Cinch::Plugins::Media] = {
       :url           => 'http://indie-gallery.herokuapp.com/',
-      :channel       => production? ? '#indie' : '#indie-test',
+      :channels      => ['#indie', '#indie-test'],
       :ignored_hosts => ['images.4chan.org', 'https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
