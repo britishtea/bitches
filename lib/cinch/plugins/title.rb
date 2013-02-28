@@ -39,13 +39,15 @@ module Cinch
         @default  = self.class.default_handler || Proc.new do |m, uri, cookies|
           options          = {}
           options[:header] = { 'Cookie' => cookies } unless cookies.nil?
-          response         = HTTParty.get uri.to_s, options
+          res              = HTTParty.get uri.to_s, options
 
-          if response.code == 200
-            title = Nokogiri::HTML(response.body).at_xpath('//title').text
-            title.gsub(/\s+/, ' ').strip!
-        
-            m.reply "Title: #{CGI.unescape_html title}" unless title.nil?
+          if res.code == 200 && res.headers['content-type'] =~ /text\/html/s
+            title = Nokogiri::HTML(res.body).at_xpath('//title').text
+            
+            unless title.nil?
+              title.gsub(/\s+/, ' ').strip!
+              m.reply "Title: #{CGI.unescape_html title}"
+            end
           end
         end
       end

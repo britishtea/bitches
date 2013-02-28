@@ -27,13 +27,6 @@ DataMapper.setup :default, ENV['DATABASE_URL']
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
-# Change title response format
-class Cinch::Plugins::Title
-  def response(m, uri)
-    "Title: #{uri}"
-  end
-end
-
 # Set up the Cinch::Bot
 bot = Cinch::Bot.new do
   configure do |c|
