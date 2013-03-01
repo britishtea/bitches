@@ -41,14 +41,14 @@ module Cinch
 
         condition = weather.condition['text']
         temp      = "#{weather.condition['temp']}º C (" +
-          "#{Integer(weather.condition['temp']) * 1.8 + 32}º F)"
-        wind      = "Wind: #{weather.wind['speed']} #{weather.units['speed']}" +
-          ", #{wind_direction_name weather.wind['direction']}"
+          "#{to_f weather.condition['temp']}º F)"
+        wind      = "Wind: #{Float(weather.wind['speed']).ceil} " +
+          "#{weather.units['speed']}, #{direction weather.wind['direction']}"
         humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
 
         fc  = weather.forecasts.first
         tomorrow  = "#{fc['text']}, #{fc['low']}-#{fc['high']}º C (" +
-          "#{fc['low'] * 1.8 + 32}-#{fc['high'] * 1.8 + 32}º F)"
+          "#{to_f fc['low']}-#{to_f fc['high']}º F)"
 
         m.reply "#{loc}: #{condition}, #{temp}. #{wind}. #{humidity}. " +
           "Tomorrow: #{tomorrow}."
@@ -56,7 +56,7 @@ module Cinch
 
     private
 
-      def wind_direction_name(degrees)
+      def direction(degrees)
         directions = { 
           348.75..11.25  => 'North',      11.25..33.75   => 'North North-East', 
           33.75..56.25   => 'North-East', 56.25..78.75   => 'East North-East',
@@ -69,6 +69,10 @@ module Cinch
         }
 
         directions.find { |range, direction| range.include? degrees }.last
+      end
+
+      def to_f(temp)
+        (Float(temp) * 1.8 + 31).ceil
       end
     end
   end
