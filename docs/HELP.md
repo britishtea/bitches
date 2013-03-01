@@ -2,6 +2,15 @@
 
 Bitches is your bitch. For quick help on IRC, simply type `!help [module]` (e.g. `!help choons`).
 
+## Google
+
+**Usage**: `!g[oogle] <search term>` or `!<yt|youtube> <search term>`
+
+* `!g <search term>`: Gets the first result from Google.
+* `!google <search term>`: Gets the first three results from Google.
+* `!yt <search term>`: Gets the first result from Youtube.
+* `!youtube <search term>`: Gets the first three results from Youtube. 
+
 ## IMDb
 
 Bitches can search the [IMDb](http://imdb.com) for you.
@@ -17,7 +26,7 @@ Possible details are `title`, `imdb_id`, `tagline`, `plot`, `runtime`, `rating`,
 
 ## Last
 
-**Usage**: `-`
+**Usage**: see below.
 
 * `!artist [<artist name>]`: looks up artist information.
 * `!compare <nickname one> [<nickname two>]`: compares two users.

@@ -11,6 +11,7 @@ require 'cinch/plugins/slang'
 require 'cinch/plugins/recommend'
 require 'cinch/plugins/weather'
 require 'cinch/plugins/title'
+require 'cinch/plugins/google'
 
 # Interal: Checks if the environment is production.
 #
@@ -42,7 +43,7 @@ bot = Cinch::Bot.new do
     
     c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Links, 
       Cinch::Plugins::Slang, Cinch::Plugins::Recommend, Cinch::Plugins::Weather,
-      Cinch::Plugins::Title]
+      Cinch::Plugins::Title, Cinch::Plugins::Google]
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
