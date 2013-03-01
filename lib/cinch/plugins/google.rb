@@ -32,7 +32,7 @@ module Cinch
         return unless @more.has_key? m.user
 
         url = "https://google.com/search?q=#{CGI.escape @more[m.user]}"
-        m.reply "More results on #{url}"
+        m.reply "More results on #{@isgd.shorten(url).shorturl}"
       end
 
       def google(m, query)
