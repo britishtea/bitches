@@ -8,8 +8,8 @@ module Cinch
       include Cinch::Plugin
       include HTTParty
       
-      match /.*http.*/, :use_prefix => false, :method => :handle_url
-      match /www\..*/,  :use_prefix => false, :method => :handle_url
+      match /.*http.*/, :use_prefix => false, :method => :handle_url, :group => :url
+      match /www\..*/,  :use_prefix => false, :method => :handle_url, :group => :url
 
       class << self
         attr_reader :cookies, :default_handler, :handlers
@@ -49,7 +49,7 @@ module Cinch
       end
       
       def handle_url(m)
-        msg = m.message.gsub 'www.', 'http://www.'
+        msg = m.message.gsub ' www.', 'http://www.'
 
         URI.extract msg, ["http", "https"] do |uri|
           begin
