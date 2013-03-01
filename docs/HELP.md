@@ -74,7 +74,7 @@ Bitches can search the [Urban Dictionary](http://urbandictionary.com/) for you.
 
 **Usage**: `!weather [<location>]`
 
-* The location defaults to the location you last used.
+\* The location defaults to the location you last used.
 
 ## What
 

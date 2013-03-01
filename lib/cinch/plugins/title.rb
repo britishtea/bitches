@@ -1,8 +1,3 @@
-#!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
-# Copyright (c) 2010 Victor Bergoo
-# This program is made available under the terms of the MIT License.
-
 require 'httparty'
 require 'nokogiri'
 require 'cgi'

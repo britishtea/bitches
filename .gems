@@ -10,3 +10,4 @@ dm-postgres-adapter -v 1.2.0
 lastfm -v 1.16.0
 retryable-rb -v 1.1.0
 httparty -v 0.8.2
+google-search -v 1.0.3

@@ -32,9 +32,12 @@ DataMapper.auto_upgrade!
 bot = Cinch::Bot.new do
   configure do |c|
     c.server   = ENV['SERVER']
-    c.nick     = production? ? ENV['NICKNAME'] : "#{ENV['NICKNAME']}_test"
+    c.port     = ENV['PORT'] || 6667
+    c.password = ENV['PASSWORD']
+    c.nick     = ENV['NICKNAME']
     c.user     = ENV['NICKNAME']
     c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
+    c.ssl.use  = true if ENV.has_key? 'SSL'
 
     c.authentication = Cinch::Configuration::Authentication.new
     c.authentication.strategy = :channel_status
