@@ -1,11 +1,15 @@
 # encoding: utf-8
 
+require 'retryable'
 require 'yahoo_weatherman'
 
 module Cinch
   module Plugins
     class Weather
       include Cinch::Plugin
+      include Retryable
+
+      NoWeather = Class.new StandardError
 
       # TODO: Find a decent Yahoo! Weather API wrapper.
       set :plugin_name, 'weather'
@@ -25,33 +29,39 @@ module Cinch
         )
         user.update :location => location unless location.nil?
 
-        weather = @client.lookup_by_location location || user.location
+        retryable do
+          weather = @client.lookup_by_location location || user.location
 
-        # Weatherman doesn't have an error response. Dirrrrrty.
-        unless weather.location.is_a? Nokogiri::XML::Element
-          m.reply "Could not find the weather for #{location}."
-          return
+          # Weatherman doesn't have an error response. Dirrrrrty.
+          unless weather.location.is_a? Nokogiri::XML::Element
+            raise NoWeather, "Could not find the weather for #{location}."
+          end
+
+          if weather.location['country'] == 'United States'
+            loc = "#{weather.location['city']}, #{weather.location['region']}"
+          else
+            loc = "#{weather.location['city']}, #{weather.location['country']}"
+          end
+
+          condition = weather.condition['text']
+          temp      = "#{weather.condition['temp']}º C (" +
+            "#{to_f weather.condition['temp']}º F)"
+          wind      = "Wind: #{Float(weather.wind['speed']).ceil} " +
+            "#{weather.units['speed']}, #{direction weather.wind['direction']}"
+          humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
+
+          fc  = weather.forecasts.first
+          tomorrow  = "#{fc['text']}, #{fc['low']}-#{fc['high']}º C (" +
+            "#{to_f fc['low']}-#{to_f fc['high']}º F)"
+
+          m.reply "#{loc}: #{condition}, #{temp}. #{wind}. #{humidity}. " +
+            "Tomorrow: #{tomorrow}."
         end
-
-        if weather.location['country'] == 'United States'
-          loc = "#{weather.location['city']}, #{weather.location['region']}"
-        else
-          loc = "#{weather.location['city']}, #{weather.location['country']}"
-        end
-
-        condition = weather.condition['text']
-        temp      = "#{weather.condition['temp']}º C (" +
-          "#{to_f weather.condition['temp']}º F)"
-        wind      = "Wind: #{Float(weather.wind['speed']).ceil} " +
-          "#{weather.units['speed']}, #{direction weather.wind['direction']}"
-        humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
-
-        fc  = weather.forecasts.first
-        tomorrow  = "#{fc['text']}, #{fc['low']}-#{fc['high']}º C (" +
-          "#{to_f fc['low']}-#{to_f fc['high']}º F)"
-
-        m.reply "#{loc}: #{condition}, #{temp}. #{wind}. #{humidity}. " +
-          "Tomorrow: #{tomorrow}."
+      rescue NoWeather => e
+        m.reply e.message
+      rescue => e 
+        bot.loggers.error e.message
+        m.reply "Something went wrong."
       end
 
     private
@@ -68,7 +78,9 @@ module Cinch
           303.75..326.25 => 'North-West', 326.25..348.75 => 'North North-West'
         }
 
-        directions.find { |range, direction| range.include? degrees }.last
+        dir = directions.find { |range, direction| range.include? degrees }
+
+        return dir.nil? ? 'None' : dir.last
       end
 
       def to_f(temp)
