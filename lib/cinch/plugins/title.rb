@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'httparty'
 require 'nokogiri'
 require 'cgi'
@@ -42,7 +43,7 @@ module Cinch
             
             unless title.nil?
               title.gsub(/\s+/, ' ').strip!
-              m.reply "Title: #{CGI.unescape_html title}"
+              m.reply "Title: #{CGI.unescape_html(title).strip}"
             end
           end
         end
@@ -56,9 +57,12 @@ module Cinch
             next if ignore uri
 
             uri     = URI uri
-            handler = @handlers[uri.host] || @default
+            host    = uri.host.split('.')[-2..-1].join '.' # Allows subdomains
+            handler = @handlers[host] || @default
 
-            handler.call m, uri, @cookies[uri.host]
+            unless handler.call m, uri, @cookies[uri.host]
+              @default.call m, uri, @cookies[uri.host]
+            end
           rescue => e
             bot.loggers.error e.message
             bot.loggers.error e.backtrace
@@ -77,6 +81,48 @@ module Cinch
         ignore.each { |re| return true if uri =~ /#{re}/ }
         
         false
+      end
+    end
+
+    require 'youtube_it'
+
+    Title.handler('youtube.com') do |m, uri, cookies|
+      begin
+        client = YouTubeIt::Client.new
+
+        video    = client.video_by uri.to_s
+        rating   = video.rating.average.ceil.times.inject('') { |x| x << '★' } +
+          '☆☆☆☆☆'
+        duration = Time.at(video.duration).gmtime.strftime '%R:%S'
+
+        m.reply "#{video.title} [#{duration}] - #{rating[0..4]}"
+
+        next true
+      rescue => e
+        next false
+      end
+    end
+
+    require 'filmbuff'
+
+    Title.handler('imdb.com') do |m, uri, cookies|
+      begin
+        uri.path.match /^\/title\/(tt\d{7})\/$/ do |matchdata|
+          imdb  = FilmBuff::IMDb.new
+          movie = imdb.find_by_id matchdata.captures.first
+
+          msg  = movie.title
+          msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
+          msg << " - #{movie.plot}" unless movie.plot.nil?
+          msg << " [#{movie.genres.join ', '}]" unless movie.genres.nil?
+          
+          m.reply msg
+        end
+
+        next !! uri.path.match(/^\/title\/(tt\d{7})\/$/)
+      rescue => e
+        puts e.message, e.backtrace
+        next false
       end
     end
   end
