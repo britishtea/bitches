@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'cinch'
 require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'
@@ -44,9 +45,30 @@ bot = Cinch::Bot.new do
     c.authentication.level    = :h
     c.authentication.channel  = production? ? '#indie' : '#indie-test'
     
-    c.plugins.plugins = [Cinch::Plugins::IMDb, Cinch::Plugins::Links, 
-      Cinch::Plugins::Slang, Cinch::Plugins::Recommend, Cinch::Plugins::Weather,
-      Cinch::Plugins::Title, Cinch::Plugins::Google]
+    c.plugins.plugins = [Cinch::Plugins::Links, Cinch::Plugins::Slang, 
+      Cinch::Plugins::Recommend, Cinch::Plugins::Weather, Cinch::Plugins::Title,
+      Cinch::Plugins::Google]
+
+    c.plugins.plugins << Cinch::Plugins::IMDb
+    c.plugins.options[Cinch::Plugins::IMDb] = {
+      :standard => lambda do |movie|
+        msg  = movie.title.dup
+        msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
+        msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
+        msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
+        msg << " - #{movie.plot}" unless movie.plot.nil?
+        
+        unless movie.genres.nil?
+          msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
+        end
+
+        return msg
+      end,
+      :fact => lambda do |movie, fact, result|
+        result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
+        "#{movie.title.capitalize} #{fact}: #{result}"
+      end
+    }
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
