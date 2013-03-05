@@ -127,5 +127,42 @@ module Cinch
         next false
       end
     end
+
+    require 'whatcd'
+
+    #WhatCD::authenticate ENV['WHATCD_USERNAME'], ENV['WHATCD_PASSWORD']
+
+    Title.handler('what.cd') do |m, uri, cookies|
+      begin
+        next unless uri.path == '/torrents.php'
+
+        release = WhatCD::Torrentgroup(id: uri.query[/\d+/])
+
+        if release['group']['categoryName'] == 'Music'
+          artists = release['group']['musicInfo']['artists'].map do |artist|
+            artist['name']
+          end
+          
+          if artists.size > 1
+            msg = "#{artists[0..-2].join ', '} & #{artists.last}"
+          else
+            msg = "#{artists.first}"
+          end
+
+          msg << " - #{release['group']['name']} (#{release['group']['year']})"
+
+          encodings = release['torrents'].map { |t| t['encoding'] }.uniq
+          msg << " [#{encodings.join ' / '}]"
+        else
+          msg  = "#{release['group']['categoryName']}: "
+          msg << release['group']['name']
+        end
+
+        m.reply msg
+      rescue => e
+        puts e.message, e.backtrace
+        next false
+      end
+    end
   end
 end
