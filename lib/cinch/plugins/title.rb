@@ -91,11 +91,11 @@ module Cinch
         client = YouTubeIt::Client.new
 
         video    = client.video_by uri.to_s
-        rating   = video.rating.average.ceil.times.inject('') { |x| x << '★' } +
-          '☆☆☆☆☆'
+        rating   = ('★' * video.rating.average.ceil + '☆' * 5)[0..4]
         duration = Time.at(video.duration).gmtime.strftime '%R:%S'
+        duration = duration[3..-1] if duration.start_with? '00'
 
-        m.reply "#{video.title} [#{duration}] - #{rating[0..4]}"
+        m.reply "#{video.title} [#{duration}] - #{rating}"
 
         next true
       rescue => e
@@ -111,8 +111,10 @@ module Cinch
           imdb  = FilmBuff::IMDb.new
           movie = imdb.find_by_id matchdata.captures.first
 
-          msg  = movie.title
+          msg  = movie.title.dup
           msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
+          msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
+          msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
           msg << " - #{movie.plot}" unless movie.plot.nil?
           msg << " [#{movie.genres.join ', '}]" unless movie.genres.nil?
           
