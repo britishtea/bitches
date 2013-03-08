@@ -63,7 +63,8 @@ module Cinch
         retryable :finally => @finally do |handler|
           handler[:message] = m
 
-          user     = Models::User.first :nickname => one
+          user     = Models::User.first :conditions => ['LOWER(nickname) = ?',
+            one.downcase]
           username = user.nil? || user.lastfm_name.nil? ? one : user.lastfm_name
 
           tasteometer = @client.tasteometer.compare(
@@ -158,7 +159,8 @@ module Cinch
 
       def find_lastfm_username(m, username = nil)
         nickname = m.user.authname || m.user.nick
-        user     = Models::User.first :nickname => username || nickname
+        user     = Models::User.first :conditions => ['LOWER(nickname) = ?', 
+          (username || nickname).downcase]
 
         if user.nil? || user.lastfm_name.nil?
           if username.nil?
