@@ -1,6 +1,7 @@
 require 'cgi'
 require 'google-search'
 require 'shortly'
+require 'youtube_it'
 
 module Cinch
   module Plugins
@@ -24,8 +25,9 @@ module Cinch
       def initialize(*args)
         super
 
-        @isgd = Shortly::Clients::Isgd
-        @more = {}
+        @isgd    = Shortly::Clients::Isgd
+        @more    = {}
+        @youtube = YouTubeIt::Client.new
       end
 
       def more(m)
@@ -58,11 +60,33 @@ module Cinch
       end
 
       def youtube(m, query)
-        google m, "#{query} site:youtube.com"
+        results = youtube_search(m, query).first 3
+        size    = results.size
+        msg     = results.inject("Top #{size > 3 ? 3 : size}:") do |obj, item|
+          title    = CGI.unescape_html item.title
+          duration = Time.at(item.duration).gmtime.strftime '%R:%S'
+          duration = duration[3..-1] if duration.start_with? '00'
+          url      = @isgd.shorten(item.player_url).shorturl
+
+          obj << " #{title} [#{duration}] - #{url} |"
+        end
+
+        m.reply msg[0..-3]
+      rescue NoResults => e
+        m.reply e.message
       end
 
       def yt(m, query)
-        g m, "#{query} site:youtube.com"
+        result = youtube_search(m, query).first
+
+        title    = CGI.unescape_html result.title
+        duration = Time.at(result.duration).gmtime.strftime '%R:%S'
+        duration = duration[3..-1] if duration.start_with? '00'
+        url      = @isgd.shorten(result.player_url).shorturl
+
+        m.reply "#{title} [#{duration}] - #{url}"
+      rescue NoResults => e
+        m.reply e.message
       end
 
     private
@@ -73,6 +97,14 @@ module Cinch
         raise NoResults, "No results" if results.response.estimated_count == 0
 
         return results      
+      end
+
+      def youtube_search(m, query)
+        @more[m.user] = query
+        results       = @youtube.videos_by :query => query, :per_page => 3
+        raise NoResults, "No results" if results.total_result_count == 0
+
+        return results.videos
       end
     end
   end
