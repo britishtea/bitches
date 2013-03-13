@@ -158,7 +158,7 @@ module Cinch
           msg << release['group']['name']
         end
 
-        m.reply msg
+        m.reply CGI.unescapeHTML(msg)
       rescue => e
         puts e.message, e.backtrace
         next false
