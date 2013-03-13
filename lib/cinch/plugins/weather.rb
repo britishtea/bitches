@@ -47,7 +47,8 @@ module Cinch
           temp      = "#{weather.condition['temp']}º C (" +
             "#{to_f weather.condition['temp']}º F)"
           wind      = "Wind: #{Float(weather.wind['speed']).ceil} " +
-            "#{weather.units['speed']}, #{direction weather.wind['direction']}"
+            "#{weather.units['speed']} (#{(Float(weather.wind['speed']) * 
+            0.621371192).ceil} mph), #{direction weather.wind['direction']}"
           humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
 
           fc  = weather.forecasts.first
