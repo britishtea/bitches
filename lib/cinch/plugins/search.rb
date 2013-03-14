@@ -1,24 +1,24 @@
 require 'cgi'
 require 'google-search'
 require 'shortly'
+require 'wikipedia'
 require 'youtube_it'
 
 module Cinch
   module Plugins
-    class Google
+    class Search
       include Cinch::Plugin
 
-      set :plugin_name, 'google'
-      set :help, 'Usage: !google <search term>'
+      set :plugin_name, 'search'
+      set :help, 'Usage: !<google|g|youtube|yt|w> <search term>'
 
       match /google more/s,  :method => :more,    :group => :google
       match /google (.+)/s,  :method => :google,  :group => :google
       match /g more/s,       :method => :more,    :group => :g
       match /g (.+)/s,       :method => :g,       :group => :g
-      match /youtube more/s, :method => :more,    :group => :youtube
-      match /youtube (.+)/s, :method => :youtube, :group => :youtube
-      match /yt more/s,      :method => :more,    :group => :yt
-      match /yt (.+)/s,      :method => :yt,      :group => :yt
+      match /youtube (.+)/s, :method => :youtube
+      match /yt (.+)/s,      :method => :yt
+      match /w (.+)/s,       :method => :w      
 
       NoResults = Class.new StandardError
 
@@ -87,6 +87,19 @@ module Cinch
         m.reply "#{title} [#{duration}] - #{url}"
       rescue NoResults => e
         m.reply e.message
+      end
+
+      def w(m, query)
+        page = Wikipedia.find query
+
+        if page.content.nil?
+          m.reply "No Results"
+        else
+          url  = @isgd.shorten 'http://en.wikipedia.org/wiki/' + 
+            page.title.gsub(/\s/, '_')
+
+          m.reply "#{page.title} - #{url.shorturl}"
+        end
       end
 
     private
