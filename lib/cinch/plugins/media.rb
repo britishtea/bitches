@@ -1,4 +1,4 @@
-require 'net/http'
+require 'httparty'
 
 require 'cinch/extensions/authentication'
 
@@ -9,43 +9,45 @@ module Cinch
       include Cinch::Extensions::Authentication
   
       set :plugin_name, 'media'
-      set :help, "Usage: !media delete <url>."
+      set :help, "Usage: !delete <url>."
       
-      match /(?:media )?del(?:ete)? (.+)/i, :group => :uris, :method => :delete
-      match /(.*http.*)/i,                :group => :uris, :method => :add_media, 
-                                          :use_prefix => false
+      match /del(?:ete)? (.+)/i, :group => :uris, :method => :delete
+      match /(.*http.*)/i,       :group => :uris, :method => :add_media, 
+                                 :use_prefix => false
   
       # Internal: Initializes the plugin and opens a SQLite database connection.
       def initialize(*args)
         super
 
-        @url           = self.config[:url]
-        @channels      = self.config[:channels] || []
-        @ignored_hosts = self.config[:ignored_hosts] || []
-        @ignored_tags  = self.config[:ignored_tags] || []
+        @url           = config[:url]
+        @channels      = config[:channels] || []
+        @ignored_hosts = config[:ignored_hosts] || []
+        @ignored_tags  = config[:ignored_tags] || []
       end
 
       # Public: Adds media to the database
       def add_media(m)
-        return if ignore?(m.message)
-        return unless @channels.include?(m.channel)
-
-        nickname = m.user.authname || m.user.nick
-        user     = Models::User.first_or_create :nickname => nickname
+        return if ignore? m.message 
+        return unless @channels.include? m.channel
 
         URI.extract m.message, ['http', 'https'] do |uri|
           begin
             parsed_uri = URI(uri)
-            response   = Net::HTTP.get_response parsed_uri
+            host       = parsed_uri.host
 
-            next if @ignored_hosts.include? parsed_uri.host
+            next if @ignored_hosts.include? host
 
-            if parsed_uri.host =~ /youtu(\.be.*|be\.\S{1,4}.*)/i
-              add_video uri, user
-            elsif response['content-type'] =~ /^image\//i
-              add_picture uri, user
-            end
+            type     = HTTParty.get(uri).headers['content-type']
+            yt_uris  = %w(youtube.com youtu.be)
+
+            next unless host.end_with?(*yt_uris) || type.start_with?('image/')
+
+            response = HTTParty.post "#{@url}/media", query: {
+              user: (m.user.authname || m.user.nick), url: uri, message: m.to_s, 
+              secret: ENV['SECRET'] 
+            }
           rescue => e
+            bot.loggers.error e.message
             next
           end
         end
@@ -54,45 +56,23 @@ module Cinch
       # Public: Removes an offensive link from the database.
       def delete(m, uri)
         return unless authenticated? m
-        opts  = { :url => uri }
-        media = Models::Video.first(opts) || Models::Picture.first(opts)
-        media.destroy!
-        
-        m.user.notice 'Aye!'
+
+        response = HTTParty.delete "#{@url}/media", query: {
+          url: uri, secret: ENV['SECRET']
+        }
+
+        case response.code
+          when "200" then m.reply 'Done'
+          when "500" then raise "Destroying #{uri} failed."
+          when "401" then raise "The secret is incorrect."
+          else bot.loggers.error response.inspect
+        end
       rescue => e
         bot.loggers.error e.message
-        m.user.notice "I'm sorry, that didn't work."
+        m.user.notice 'Something went wrong.'
       end
 
     private
-
-      # Public: Saves image URLs to a database.
-      #
-      # uri  - A uri String.
-      # user - A Models::User.
-      def add_picture(uri, user)
-        picture      = Models::Picture.create :url => uri
-        picture.user = user
-        picture.save!
-        
-        bot.loggers.info "Successfully added a picture (#{picture.url})."
-      rescue => e
-        bot.loggers.error e.message
-      end
-
-      # Public: Saves video URLs to a database.
-      #
-      # uri  - A uri String.
-      # user - A Models::User.
-      def add_video(uri, user) 
-        video      = Models::Video.create :url => uri
-        video.user = user
-        video.save!
-
-        bot.loggers.info "Successfully added a video (#{video.url})."
-      rescue => e
-        bot.loggers.error e.message
-      end
 
       # Public: Checks if the message should be ignored.
       #
