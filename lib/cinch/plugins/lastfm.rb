@@ -141,15 +141,11 @@ module Cinch
           if artist['tags'].has_key? 'tag'
             tags = artist['tags']['tag'][0..2].map { |tag| tag['name'] }
  
-            message << "makes #{enumerate tags} music and " unless tags.empty?
+            message << "is tagged as #{enumerate tags} and " unless tags.empty?
           end
 
           message << "has #{artist['stats']['listeners']} listeners."
-
-          if artist['stats'].has_key? 'userplaycount'
-            message << " You scrobbled them #{artist['stats']['userplaycount']}"
-            message << " times."
-          end
+          message << " #{artist['url']}"
 
           m.reply message
         end
