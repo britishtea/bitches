@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'cgi'
 require 'google-search'
 require 'shortly'
@@ -83,8 +84,9 @@ module Cinch
         duration = Time.at(result.duration).gmtime.strftime '%R:%S'
         duration = duration[3..-1] if duration.start_with? '00'
         url      = @isgd.shorten(result.player_url).shorturl
+        rating   = ('★' * result.rating.average.ceil + '☆' * 5)[0..4]
 
-        m.reply "#{title} [#{duration}] - #{url}"
+        m.reply "#{title} [#{duration}] - #{rating} - #{url}"
       rescue NoResults => e
         m.reply e.message
       end
