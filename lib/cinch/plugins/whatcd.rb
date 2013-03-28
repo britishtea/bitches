@@ -17,7 +17,6 @@ module Cinch
       match /what -{0,2}torrents? (.+)/i, :group => :what, :method => :torrent
       match /what -{0,2}users? (.+)/i,    :group => :what, :method => :user
       match /what (.+)?/i,                :group => :what, :method => :torrent
-      match /rippy$/i,                                     :method => :rippy
       
       # Initializes the plugin.
       def initialize(*args)
@@ -42,12 +41,6 @@ module Cinch
 
           m.reply "#{CGI.unescapeHTML request['title']} => #{urls}"
         end
-      rescue => e
-        error m, e
-      end
-
-      def rippy(m)
-        m.reply CGI.unescapeHTML(WhatCD::Rippy)
       rescue => e
         error m, e
       end

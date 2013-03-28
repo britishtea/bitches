@@ -85,7 +85,6 @@ Bitches can search [what.cd](https://what.cd) for you. It can search for torrent
 * `!what <searchterm> [options]`: searches for a torrent with the name 'searchterm'.
 * `!what request <searchterm> [options]`: searches for a request with the name 'searchterm'.
 If no arguments are specified then the most recent requests are shown.
-* `!what rippy`: sends you one of Rippy's magnificent quotes. There's also `!rippy`.
 * `!what user <username> [options]`: searches for a user with the name 'username'.
 
 Sometimes you need a more advanced search query. Bitches got you covered. Any of the parameters described in [the What.cd JSON API](https://ssl.what.cd/wiki.php?action=article&id=998) can be sent to Bitches. For example, if you want the Crystal Castles album released in 2008, you can search for it using `!what [torrent] crystal castles - crystal castles --year 2008`. For a complete list of extra parameters, see [the API documentation](https://ssl.what.cd/wiki.php?action=article&id=998).
