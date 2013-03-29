@@ -42,7 +42,8 @@ module Cinch
             title = Nokogiri::HTML(res.body).at_xpath('//title').text
             
             unless title.nil?
-              title.gsub(/\s+/, ' ').strip!
+              title.gsub!(/\s+/, ' ')
+              title.strip!
               m.reply "Title: #{CGI.unescape_html(title).strip}"
             end
           end
