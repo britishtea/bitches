@@ -12,7 +12,7 @@ module Cinch
 
       def slang(m, word)
         definition = UrbanDictionary.define(word).entries.first.definition
-        m.reply definition.gsub("\r", '. ')
+        m.reply definition.gsub("\r", '. ').gsub(/\s+/, " ")
       end
     end
   end
