@@ -43,15 +43,35 @@ module Cinch
 
           # Some weirdness in the lastfm library. It returns an Array when a
           # track is nowplaying, otherwise it returns a track Hash.
-          track = track.first if track.is_a? Array
+          track  = track.first if track.is_a? Array
 
-          if track.nil? || !track.has_key?('nowplaying')
+          if track.nil?
             msg = "#{username || m.user.nick} isn't playing anything right now."
-          else
-            artist    = track['artist']['content']
-            trackname = track['name']
+          elsif !track.has_key? 'nowplaying'
+            # Last.fm's API is wacky. Sometimes it says the user isn't playing,
+            # while in fact they are. We're manually checking wether or not it's
+            # likely that the user is currently playing the last scrobbled track
+            scrobble_start = Time.parse track['date']['content']
+            artist         = track['artist']['content']
 
-            msg = "#{username || m.user.nick} is now playing #{artist} - " +
+            track_info     = @client.track.get_info(
+              :mbid   => track['mbid'],
+              :artist => artist,
+              :track  => track['name']
+            )
+
+            max = scrobble_start + (Integer(track_info['duration']) / 1000)
+
+            if Time.now < max
+              msg = "#{username || m.user.nick} is now playing #{artist} - " +
+              "#{track['name']}."
+            else
+              msg = "#{username || m.user.nick} isn't playing anything right " +
+                "now."
+            end
+          else
+            artist = track['artist']['content']
+            msg    = "#{username || m.user.nick} is now playing #{artist} - " +
               "#{track['name']}."
           end
 
