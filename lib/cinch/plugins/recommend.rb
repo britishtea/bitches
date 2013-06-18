@@ -48,7 +48,8 @@ module Cinch
           :nickname => m.user.authname || m.user.nick
         )
         user = Models::User.first_or_create(
-          :nickname => User(user).authname || user
+          :conditions => ['LOWER(nickname) = ?', 
+          (User(user).authname || nickname).downcase]
         )
 
         rec = Models::Recommendation.new(
