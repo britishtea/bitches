@@ -10,5 +10,11 @@ module Models
     property :location,    String
 
     has n, :recommendations
+
+    def self.find_user(nickname)
+      result = first(:conditions => ["LOWER(nickname) = ?", nickname.downcase])
+      
+      result || create(:nickname => nickname)
+    end
 	end
 end

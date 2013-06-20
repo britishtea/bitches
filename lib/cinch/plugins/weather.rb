@@ -24,17 +24,20 @@ module Cinch
       end
 
       def weather(m, location = nil)
-        user = Models::User.first_or_create(
-          :nickname => m.user.authname || m.user.nick
-        )
+        user = Models::User.find_user m.user.authname || m.user.nick
         user.update :location => location unless location.nil?
 
         retryable do
+          if location.nil? && user.location.nil?
+            raise NoWeather, "Tell me where you are first (!weather location)" +
+              ", I'll remember after that."
+          end
+
           weather = @client.lookup_by_location location || user.location
 
           # Weatherman doesn't have an error response. Dirrrrrty.
           unless weather.location.is_a? Nokogiri::XML::Element
-            raise NoWeather, "Could not find the weather for #{location}."
+            raise NoWeather, "Could not find the weather for \"#{location}\"."
           end
 
           if weather.location['country'] == 'United States'
@@ -51,7 +54,7 @@ module Cinch
             0.621371192).ceil} mph), #{direction weather.wind['direction']}"
           humidity  = "Humidity: #{Float(weather.atmosphere['humidity']).ceil}%"
 
-          fc  = weather.forecasts.first
+          fc        = weather.forecasts.first
           tomorrow  = "#{fc['text']}, #{fc['low']}-#{fc['high']}º C (" +
             "#{to_f fc['low']}-#{to_f fc['high']}º F)"
 
@@ -62,6 +65,7 @@ module Cinch
         m.reply e.message
       rescue => e 
         bot.loggers.error e.message
+        bot.loggers.error e.backtrace
         m.reply "Something went wrong."
       end
 
