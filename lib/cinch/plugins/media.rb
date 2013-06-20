@@ -20,6 +20,7 @@ module Cinch
         super
 
         @url           = config[:url]
+        @secret        = config[:secret]
         @channels      = config[:channels] || []
         @ignored_hosts = config[:ignored_hosts] || []
         @ignored_tags  = config[:ignored_tags] || []
@@ -44,7 +45,7 @@ module Cinch
 
             response = HTTParty.post "#{@url}/media", query: {
               user: (m.user.authname || m.user.nick), url: uri, message: m.to_s, 
-              secret: ENV['SECRET'] 
+              secret: @secret
             }
           rescue => e
             bot.loggers.error e.message
@@ -58,7 +59,7 @@ module Cinch
         return unless authenticated? m
 
         response = HTTParty.delete "#{@url}/media", query: {
-          url: uri, secret: ENV['SECRET']
+          url: uri, secret: @secret
         }
 
         case response.code

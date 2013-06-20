@@ -2,7 +2,7 @@
 require 'cinch'
 require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'
-require 'cinch/plugins/imdb'
+#require 'cinch/plugins/imdb'
 require 'cinch/plugins/media'
 require 'cinch/plugins/lastfm'
 require 'cinch/plugins/links'
@@ -14,12 +14,8 @@ require 'cinch/plugins/weather'
 require 'cinch/plugins/title'
 require 'cinch/plugins/search'
 
-# Interal: Checks if the environment is production.
-#
-# Returns a Boolean.
-def production?
-  ENV['ENVIRONMENT'] == 'production'
-end
+require 'dotenv'
+Dotenv.load
 
 # Set up DataMapper
 require 'data_mapper'
@@ -33,42 +29,42 @@ DataMapper.auto_upgrade!
 bot = Cinch::Bot.new do
   configure do |c|
     c.server   = ENV['SERVER']
-    c.port     = ENV['PORT'] || 6667
+    c.port     = ENV['PORT']
     c.password = ENV['PASSWORD']
     c.nick     = ENV['NICKNAME']
     c.user     = ENV['NICKNAME']
-    c.channels = production? ? ['#indie', '#indie-ops'] : ['#indie-test']
-    c.ssl.use  = true if ENV.has_key? 'SSL'
+    c.channels = [ENV['CHANNEL'], ENV['MONITOR_CHANNEL']]
+    c.ssl.use  = true if ENV['SSL'] == "true"
 
     c.authentication = Cinch::Configuration::Authentication.new
     c.authentication.strategy = :channel_status
     c.authentication.level    = :h
-    c.authentication.channel  = production? ? '#indie' : '#indie-test'
+    c.authentication.channel  = ENV['CHANNEL']
     
     c.plugins.plugins = [Cinch::Plugins::Links, Cinch::Plugins::Slang, 
       Cinch::Plugins::Recommend, Cinch::Plugins::Weather, Cinch::Plugins::Title,
       Cinch::Plugins::Search]
 
-    c.plugins.plugins << Cinch::Plugins::IMDb
-    c.plugins.options[Cinch::Plugins::IMDb] = {
-      :standard => lambda do |movie|
-        msg  = movie.title.dup
-        msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
-        msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
-        msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
-        msg << " - #{movie.plot}" unless movie.plot.nil?
+    # c.plugins.plugins << Cinch::Plugins::IMDb
+    # c.plugins.options[Cinch::Plugins::IMDb] = {
+    #   :standard => lambda do |movie|
+    #     msg  = movie.title.dup
+    #     msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
+    #     msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
+    #     msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
+    #     msg << " - #{movie.plot}" unless movie.plot.nil?
         
-        unless movie.genres.nil?
-          msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
-        end
+    #     unless movie.genres.nil?
+    #       msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
+    #     end
 
-        return msg
-      end,
-      :fact => lambda do |movie, fact, result|
-        result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
-        "#{movie.title.capitalize} #{fact}: #{result}"
-      end
-    }
+    #     return msg
+    #   end,
+    #   :fact => lambda do |movie, fact, result|
+    #     result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
+    #     "#{movie.title.capitalize} #{fact}: #{result}"
+    #   end
+    # }
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
@@ -84,8 +80,9 @@ bot = Cinch::Bot.new do
     
     c.plugins.plugins << Cinch::Plugins::Media
     c.plugins.options[Cinch::Plugins::Media] = {
-      :url           => 'http://indie-gallery.herokuapp.com',
-      :channels      => ['#indie', '#indie-test'],
+      :url           => ENV['GALLERY_URL'],
+      :secret        => ENV['GALLERY_SECRET'],
+      :channels      => [ENV['CHANNEL']],
       :ignored_hosts => ['https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
@@ -98,7 +95,7 @@ bot = Cinch::Bot.new do
 
     c.plugins.plugins << Cinch::Plugins::BigBrother
     c.plugins.options[Cinch::Plugins::BigBrother] = {
-      :channel => production? ? '#indie-ops' : '#indie-test'
+      :channel => ENV['MONITOR_CHANNEL']
     }
   end
 
