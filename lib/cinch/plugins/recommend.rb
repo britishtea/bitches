@@ -11,9 +11,7 @@ module Cinch
       match /rec (\S+) (.+)/i, :group => :rec, :method => :add
 
       def get(m)
-        user = Models::User.first_or_create(
-          :nickname => m.user.authname || m.user.nick
-        )
+        user = Models::User.find_user(m.user.authname || m.user.nick)
 
         if user.recommendations.empty?
           m.reply "No recommendations."
@@ -32,9 +30,7 @@ module Cinch
       end
 
       def clear(m)
-        user = Models::User.first_or_create(
-          :nickname => m.user.authname || m.user.nick
-        )
+        user = Models::User.find_user(m.user.authname || m.user.nick)
 
         if user.recommendations.destroy
           m.reply "Your recommendations were deleted."
@@ -44,13 +40,8 @@ module Cinch
       end
 
       def add(m, user, recommendation)
-        from = Models::User.first_or_create(
-          :nickname => m.user.authname || m.user.nick
-        )
-        user = Models::User.first_or_create(
-          :conditions => ['LOWER(nickname) = ?', 
-          (User(user).authname || nickname).downcase]
-        )
+        from = Models::User.find_user(m.user.authname || m.user.nick)
+        user = Models::User.find_user(User(user).authname || user)
 
         rec = Models::Recommendation.new(
           :user => user,
