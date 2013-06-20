@@ -9,11 +9,10 @@ module Cinch
       include Cinch::Plugin
       
       set :plugin_name, 'what'
-      set :help, 'Usage: !what [(request|rippy|torrent|user)] [<searchterm>] ' +
+      set :help, 'Usage: !what [(request|torrent|user)] [<searchterm>] ' +
         '[--<parameter> <value> ...].'
       
       match /what -{0,2}requests? (.+)/i, :group => :what, :method => :request
-      match /what -{0,2}rippy/i,          :group => :what, :method => :rippy
       match /what -{0,2}torrents? (.+)/i, :group => :what, :method => :torrent
       match /what -{0,2}users? (.+)/i,    :group => :what, :method => :user
       match /what (.+)?/i,                :group => :what, :method => :torrent

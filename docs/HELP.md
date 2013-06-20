@@ -80,7 +80,7 @@ Bitches can search the [Urban Dictionary](http://urbandictionary.com/) for you.
 
 Bitches can search [what.cd](https://what.cd) for you. It can search for torrents, requests and users. It also has some of that Rippy magic.
 
-**Usage**: `!what [(request|rippy|torrent|user)] [<searchterm>] [--<parameter> <value> ...]`
+**Usage**: `!what [(request|torrent|user)] [<searchterm>] [--<parameter> <value> ...]`
 
 * `!what <searchterm> [options]`: searches for a torrent with the name 'searchterm'.
 * `!what request <searchterm> [options]`: searches for a request with the name 'searchterm'.
