@@ -2,7 +2,7 @@
 require 'cinch'
 require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'
-#require 'cinch/plugins/imdb'
+require 'cinch/plugins/imdb'
 require 'cinch/plugins/media'
 require 'cinch/plugins/lastfm'
 require 'cinch/plugins/links'
@@ -45,26 +45,26 @@ bot = Cinch::Bot.new do
       Cinch::Plugins::Recommend, Cinch::Plugins::Weather, Cinch::Plugins::Title,
       Cinch::Plugins::Search]
 
-    # c.plugins.plugins << Cinch::Plugins::IMDb
-    # c.plugins.options[Cinch::Plugins::IMDb] = {
-    #   :standard => lambda do |movie|
-    #     msg  = movie.title.dup
-    #     msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
-    #     msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
-    #     msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
-    #     msg << " - #{movie.plot}" unless movie.plot.nil?
+    c.plugins.plugins << Cinch::Plugins::IMDb
+    c.plugins.options[Cinch::Plugins::IMDb] = {
+      :standard => lambda do |movie|
+        msg  = movie.title.dup
+        msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
+        msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
+        msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
+        msg << " - #{movie.plot}" unless movie.plot.nil?
         
-    #     unless movie.genres.nil?
-    #       msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
-    #     end
+        unless movie.genres.nil?
+          msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
+        end
 
-    #     return msg
-    #   end,
-    #   :fact => lambda do |movie, fact, result|
-    #     result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
-    #     "#{movie.title.capitalize} #{fact}: #{result}"
-    #   end
-    # }
+        return msg
+      end,
+      :fact => lambda do |movie, fact, result|
+        result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
+        "#{movie.title.capitalize} #{fact}: #{result}"
+      end
+    }
     
     c.plugins.plugins << Cinch::Plugins::Identify
     c.plugins.options[Cinch::Plugins::Identify] = {
