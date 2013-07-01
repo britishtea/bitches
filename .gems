@@ -12,3 +12,4 @@ httparty -v 0.8.2
 google-search -v 1.0.3
 wikipedia-client -v 1.0.0
 dotenv -v 0.8.0
+yahoo_weatherman -v 2.0.0
