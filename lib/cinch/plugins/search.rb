@@ -49,6 +49,10 @@ module Cinch
         m.reply msg[0..-3]
       rescue NoResults => e
         m.reply e.message
+      rescue => e
+        m.reply "Something broked."
+        bot.loggers.error e.message
+        bot.loggers.error e.backtrace
       end
 
       def g(m, query)
@@ -58,6 +62,10 @@ module Cinch
         m.reply "#{title} - #{@isgd.shorten(result.uri).shorturl}"
       rescue NoResults => e
         m.reply e.message
+      rescue => e
+        m.reply "Something broked."
+        bot.loggers.error e.message
+        bot.loggers.error e.backtrace
       end
 
       def youtube(m, query)
@@ -75,6 +83,10 @@ module Cinch
         m.reply msg[0..-3]
       rescue NoResults => e
         m.reply e.message
+      rescue
+        m.reply "Something broked."
+        bot.loggers.error e.message
+        bot.loggers.error e.backtrace        
       end
 
       def yt(m, query)
@@ -84,11 +96,15 @@ module Cinch
         duration = Time.at(result.duration).gmtime.strftime '%R:%S'
         duration = duration[3..-1] if duration.start_with? '00'
         url      = @isgd.shorten(result.player_url).shorturl
-        rating   = ('★' * result.rating.average.ceil + '☆' * 5)[0..4]
+        rating   = ('★' * (result.rating.average rescue 0).ceil + '☆' * 5)[0..4]
 
         m.reply "#{title} [#{duration}] - #{rating} - #{url}"
       rescue NoResults => e
         m.reply e.message
+      rescue => e
+        m.reply "Something broked."
+        bot.loggers.error e.message
+        bot.loggers.error e.backtrace
       end
 
       def w(m, query)
