@@ -12,7 +12,7 @@ module Cinch
       
       match /np(?: (\S+))?/i,                   :method => :now_playing
       match /co(?:mpare)? (\S+)(?: (\S+))?/i,   :method => :compare
-      match /setusername (\S+)/i,               :method => :set_username
+      match /setuser(?:name)? (\S+)/i,          :method => :set_username
       match /(?:getusername|user)(?: (\S+))?/i, :method => :get_username
       match /similar(?: (.+))?/i,               :method => :similar
       match /artist(?: (.+))?/i,                :method => :artist
