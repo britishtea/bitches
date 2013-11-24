@@ -16,6 +16,7 @@ module Cinch
       match /what -{0,2}torrents? (.+)/i, :group => :what, :method => :torrent
       match /what -{0,2}users? (.+)/i,    :group => :what, :method => :user
       match /what (.+)?/i,                :group => :what, :method => :torrent
+      match /whois (\S+)/i,                                :method => :whois
       
       # Initializes the plugin.
       def initialize(*args)
@@ -83,6 +84,24 @@ module Cinch
         end
       rescue => e
         error m, e
+      end
+
+      def whois(m, nickname)
+        user = User nickname
+
+        if user.unknown?
+          m.reply "There is no user with nickname \"#{nickname}\"."
+        elsif user.host.end_with? ".what.cd"
+          what_name    = user.host.split(".").first
+          what_profile = urls "user.php?id=#{user.user}"
+
+          m.reply "#{nickname} is #{what_name} on what.cd => #{what_profile}"
+        else
+          m.reply "#{nickname} did not speak with Drone yet."
+        end
+      rescue => e
+        m.reply "Something went wrong. Does \"#{nickname}\" exist?"
+        bot.loggers.error 
       end
 
     private
