@@ -1,4 +1,4 @@
-cinch -v 2.0.4
+cinch -v 2.0.10
 cinch-authentication -v 0.1.0
 cinch-identify -v 1.4.1
 data_mapper -v 1.2.0
