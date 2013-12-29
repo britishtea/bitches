@@ -267,7 +267,8 @@ module Cinch
       # user - A Cinch::User.
       def lastfm_name_for(user)
         result = Models::User.first(
-          :conditions => ['LOWER(nickname) = ?', user.authname || user.nick]
+          :conditions => ['LOWER(nickname) = ?', 
+          (user.authname || user.nick).downcase]
         )
         
         return result.lastfm_name unless result.nil?
