@@ -9,8 +9,9 @@ module Cinch
         :tumblr   => 'http://whatindie.tumblr.com/',
         :gallery  => 'http://indie-gallery.herokuapp.com/',
         :stats    => 'http://zhaan.org/ircstats/indie/',
-        :collage  => '2013: https://what.cd/collages.php?id=19215, ' + 
-          '2012: https://what.cd/collages.php?id=19213',
+        :collage  => '2014: https://what.cd/collages.php?id=21649 ' \
+                     '2013: https://what.cd/collages.php?id=19215 ' \ 
+                     '2012: https://what.cd/collages.php?id=19213',
         :facebook => 'https://www.facebook.com/indievidualradio',
         :twitter  => 'https://twitter.com/indievidualme',
         :mixtapes => 'http://www.mixcloud.com/indievidual/'
