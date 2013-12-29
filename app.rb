@@ -103,8 +103,8 @@ bot = Cinch::Bot.new do
     m.reply "See http://goo.gl/ZFy1V."
   end
 
-  on :message, "!ping" do |m|
-    m.reply 'pong'
+  on :message, /^!(\S+)ing/i do |m, char|
+    m.reply "#{char}ong"
   end
 end
 
