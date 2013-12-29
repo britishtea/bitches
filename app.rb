@@ -1,4 +1,8 @@
 # encoding: utf-8
+
+# Put the vendor directory in the load path
+$:.unshift File.join(File.dirname(__FILE__), "vendor", "insist", "lib")
+
 require 'cinch'
 require 'cinch/extensions/authentication'
 require 'cinch/plugins/identify'

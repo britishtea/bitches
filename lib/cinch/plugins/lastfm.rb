@@ -1,199 +1,290 @@
 require 'lastfm'
-require 'retryable'
+require 'insist'
 
 module Cinch
   module Plugins
     class LastFM
       include Cinch::Plugin
-      include Retryable
+
+      NOT_REGISTERED = "You are not registered. Use !setusername <last.fm " \
+        "username> to register."
       
-      set :plugin_name, 'last'
-      set :help, 'Usage: see http://goo.gl/ZFy1V.'
+      set :plugin_name => 'last',
+          :help        => 'Usage: see http://goo.gl/5Ar4QU.'
       
-      match /np(?: (\S+))?/i,                   :method => :now_playing
-      match /co(?:mpare)? (\S+)(?: (\S+))?/i,   :method => :compare
-      match /setuser(?:name)? (\S+)/i,          :method => :set_username
-      match /(?:getusername|user)(?: (\S+))?/i, :method => :get_username
-      match /similar(?: (.+))?/i,               :method => :similar
-      match /artist(?: (.+))?/i,                :method => :artist
+      match /np$/i,       :group => :np, :method => :np_self
+      match /np (\S+)$/i, :group => :np, :method => :np_other
 
       def initialize(*args)
         super
 
-        @client = Lastfm.new config[:api_key], config[:api_secret]
+        warn "No Last.fm API key given."    unless config[:api_key]
+        warn "No Last.fm API secret given." unless config[:api_key]
 
-        # Set up callbacks for Retryable
-        @finally = Proc.new do |e, handler|
-          if e.is_a? Lastfm::ApiError
-            handler[:message].reply e.message.gsub(/\s+/, ' ').strip
-          else
-            handler[:message].reply "Something went wrong."
-          end
-        end
+        @client = Lastfm.new config[:api_key], config[:api_secret]
       end
 
-      def now_playing(m, username = nil)
-        retryable :finally => @finally do |handler|
-          handler[:message] = m
+      def np_self(m)
+        unless lastfm_name_for m.user
+          m.user.notice NOT_REGISTERED
+          m.user.notice "\"#{m.user}\" is assumed to be your Last.fm username."
+        end
 
-          track = @client.user.get_recent_tracks(
-            :user => find_lastfm_username(m, username),
+        m.reply now_playing(m.user, m.user.nick)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def np_other(m, nick)
+        m.reply now_playing(nick, nick)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      # nick         - A nickname String.
+      # display_name - A display_name String.
+      def now_playing(nick, display_name)
+        track = try do
+          @client.user.get_recent_tracks(
+            :user => lastfm_name_for(User(nick)) || nick,
             :limit => 1
           )
-
-          # Some weirdness in the lastfm library. It returns an Array when a
-          # track is nowplaying, otherwise it returns a track Hash.
-          track  = track.first if track.is_a? Array
-
-          if track.nil?
-            msg = "#{username || m.user.nick} isn't playing anything right now."
-          elsif !track.has_key? 'nowplaying'
-            # Last.fm's API is wacky. Sometimes it says the user isn't playing,
-            # while in fact they are. We're manually checking wether or not it's
-            # likely that the user is currently playing the last scrobbled track
-            scrobble_start = Time.parse track['date']['content']
-            artist         = track['artist']['content']
-
-            track_info     = @client.track.get_info(
-              :mbid   => track['mbid'],
-              :artist => artist,
-              :track  => track['name']
-            )
-
-            max = scrobble_start + (Integer(track_info['duration']) / 1000)
-
-            if Time.now < max
-              msg = "#{username || m.user.nick} is now playing #{artist} - " +
-              "#{track['name']}."
-            else
-              msg = "#{username || m.user.nick} isn't playing anything right " +
-                "now."
-            end
-          else
-            artist = track['artist']['content']
-            msg    = "#{username || m.user.nick} is now playing #{artist} - " +
-              "#{track['name']}."
-          end
-
-          m.reply msg
         end
+
+        # Some weirdness in the lastfm library. It returns an Array when a
+        # track is nowplaying, otherwise it returns a track Hash.
+        track = track.first if track.is_a? Array
+
+        if track.nil?
+          msg = "#{display_name} isn't playing anything right now."
+        elsif track.key? "nowplaying"
+          artist, title = track['artist']['content'], track['name']
+          msg = "#{display_name} is now playing #{artist} - #{title}."
+        else
+          # TODO: Add a relative time.
+          artist, title = track['artist']['content'], track['name']
+          msg = "#{display_name} last played #{artist} - #{title}."
+        end
+
+        return msg
       end
 
-      def compare(m, one, two = nil)
-        retryable :finally => @finally do |handler|
-          handler[:message] = m
 
-          user     = Models::User.first :conditions => ['LOWER(nickname) = ?',
-            one.downcase]
-          username = user.nil? || user.lastfm_name.nil? ? one : user.lastfm_name
+      match /co(?:mpare)? (\S+)$/i,       :group => :co, :method => :co_self
+      match /co(?:mpare)? (\S+) (\S+)$/i, :group => :co, :method => :co_other
 
-          tasteometer = @client.tasteometer.compare(
-            :type1 => 'user', :value1 => username,
-            :type2 => 'user', :value2 => find_lastfm_username(m, two),
+      def co_self(m, nick)
+        unless lastfm_name_for m.user
+          m.user.notice NOT_REGISTERED
+          m.user.notice "\"#{m.user}\" is assumed to be your last.fm username."
+        end
+
+        m.reply compare(m.user, nick)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def co_other(m, nick_one, nick_two)
+        m.reply compare(nick_one, nick_two)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      # one - A Cinch::User or last.fm username String.
+      # two - A Cinch::User or last.fm username String.
+      def compare(one, two)
+        tasteometer = try do
+          @client.tasteometer.compare(
+            :type1 => 'user', :value1 => lastfm_name_for(User one) || one,
+            :type2 => 'user', :value2 => lastfm_name_for(User two) || two,
             :limit => 5
           )
-
-          score   = Float(tasteometer['score']) * 100
-          matches = Integer(tasteometer['artists']['matches'])
-          msg     = "#{one} and #{two || m.user.nick} are #{score.round 2}% " +
-            "alike."
-
-          if matches > 0
-            artists = tasteometer['artists']['artist'].map { |a| a['name'] }
-            msg << " They have both listened to #{enumerate artists}."
-          end
-
-          m.reply msg
         end
+
+        score   = Float(tasteometer['score']) * 100
+        matches = Integer(tasteometer['artists']['matches'])
+        msg     = "#{one} and #{two} are #{score.round 2}% alike."
+
+        if matches > 0
+          artists = tasteometer['artists']['artist'].map { |a| a['name'] }
+          msg << " They have both listened to #{enumerate artists}."
+        end
+
+        return msg
       end
 
-      def set_username(m, username)
+
+      match /setuser(?:name)? (\S+)/i, :method => :set_username
+
+      def set_username(m, lastfm_name)
         nickname = m.user.authname || m.user.nick
         
         user = Models::User.first_or_create :nickname => nickname
-        user.update :lastfm_name => username
+        user.update :lastfm_name => lastfm_name
 
-        m.reply "You have been registered as #{username}."
+        m.reply "You have been registered as #{lastfm_name}."
+      rescue => e
+        handle_exceptions m, e
+      end
+     
+
+      match /user (\S+)$/i, :method => :user
+
+      def user(m, lastfm_name)
+        m.reply info_for(lastfm_name, lastfm_name)
+      rescue => e
+        handle_exceptions m, e
       end
 
-      def get_username(m, username = nil)
-        retryable :finally => @finally do |handler|
-          handler[:message] = m
+      # nick - A Cinch::User.
+      def info_for(lastfm_name, display_name)
+        info = try { @client.user.get_info :user => lastfm_name }
 
-          user = @client.user.get_info(
-            :user => find_lastfm_username(m, username)
-          )
-
-          m.reply "#{username || m.user.nick} is #{user['name']} on Last.fm " +
-            "and has #{user['playcount']} scrobbles (#{user['url']})."
+        if info.nil?
+          return "Last.fm does not know anyone called \"#{lastfm_name}\"."
+        else
+          return "#{display_name} is #{info['name']} on Last.fm and has " \
+            "#{info['playcount']} scrobbles (#{info['url']})."
         end
       end
 
-      def similar(m, artist = nil)
-        retryable :finally => @finally do |handler|
-          handler[:message] = m
 
-          artist ||= get_current_artist m
+      match /getuser(?:name)?$/i,       :group => :get, :method => :get_self
+      match /getuser(?:name)? (\S+)$/i, :group => :get, :method => :get_other
 
-          similar = @client.artist.get_similar(:artist => artist, :limit => 5, 
-            :autocorrect => 1)
-          artists = similar[1..-1].map { |a| a['name'] }
+      def get_self(m)
+        lastfm_name = lastfm_name_for m.user
 
-          if artists[1].empty?
-            m.reply "#{similar.first} is too unique to be similar to others."
-          else
-            m.reply "#{similar.first} is similar to #{enumerate artists}." 
-          end
+        if lastfm_name
+          m.reply info_for lastfm_name, m.user.nick
+        else
+          m.reply NOT_REGISTERED
         end
+      rescue => e
+        handle_exceptions m, e
       end
 
-      def artist(m, artist_name = nil)
-        retryable :finally => @finally do |handler|
-          handler[:message] = m
+      def get_other(m, nick)
+        lastfm_name = lastfm_name_for User(nick)
+        
+        if lastfm_name
+          m.reply info_for lastfm_name, nick
+        else
+          m.reply "#{nick} is not registered."
+        end
+      rescue => e
+        handle_exceptions m, e
+      end
+      
 
-          artist_name ||= get_current_artist m
+      match /similar$/i,      :group => :similar, :method => :similar_current
+      match /similar (.+)$/i, :group => :similar, :method => :similar_to
 
-          artist = @client.artist.get_info(:artist => artist_name, 
-            :username => find_lastfm_username(m), :autocorrect => 1)
+      def similar_current(m)
+        m.reply similarity(current_artist_for m.user)
+      rescue => e
+        handle_exceptions m, e
+      end
 
-          message = "#{artist['name']} "
+      def similar_to(m, artist)
+        m.reply similarity(artist)
+      rescue => e
+        handle_exceptions m, e
+      end
 
-          if artist['tags'].has_key? 'tag'
-            tags = artist['tags']['tag'][0..2].map { |tag| tag['name'] }
+      def similarity(artist)
+        similar = try do 
+          @client.artist.get_similar :artist => artist,
+                                     :limit  => 5,
+                                     :autocorrect => 1
+        end
+
+        artists = similar[1..-1].map { |a| a["name"] }
+
+        if artists[1].empty?
+          msg = "#{similar.first} is too unique to be similar to others."
+        else
+          msg = "#{similar.first} is similar to #{enumerate artists}." 
+        end
+
+        return msg
+      end
+
+      match /artist$/i,      :group => :artist, :method => :artist_current
+      match /artist (.+)$/i, :group => :artist, :method => :artist
+
+      def artist_current(m)
+        m.reply artist_info(current_artist_for m.user)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def artist(m, artist)
+        m.reply artist_info(artist)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def artist_info(artist_name)
+        artist = try do 
+          @client.artist.get_info :artist => artist_name,
+                                  :autocorrect => 1
+        end
+
+        msg = "#{artist['name']} "
+
+        if artist['tags'].has_key? 'tag'
+          tags = artist['tags']['tag'][0..2].map { |tag| tag['name'] }
  
-            message << "is tagged as #{enumerate tags} and " unless tags.empty?
-          end
-
-          message << "has #{artist['stats']['listeners']} listeners."
-          message << " #{artist['url']}"
-
-          m.reply message
+          msg << "is tagged as #{enumerate tags} and " unless tags.empty?
         end
+
+        msg << "has #{artist['stats']['listeners']} listeners."
+        msg << " #{artist['url']}"
+
+        return msg
       end
 
     private
 
-      def find_lastfm_username(m, username = nil)
-        nickname = m.user.authname || m.user.nick
-        user     = Models::User.first :conditions => ['LOWER(nickname) = ?', 
-          (username || nickname).downcase]
-
-        if user.nil? || user.lastfm_name.nil?
-          if username.nil?
-            m.user.notice "You haven't registered yet, #{m.user.nick} is " +
-              "assumed as your last.fm username. You can register with " +
-              "!setusername <last.fm username>."
-
-            return nickname
-          elsif User(username).channels.one? { |c| c == m.channel }
-            m.user.notice "#{username} hasn't registered yet, #{username} is " +
-              "assumed as his/her last.fm username."
-          end
-
-          return username
+      def try
+        Insist.insist 3, Lastfm::ApiError do |try|
+          sleep 0.1 if try > 0
+          yield if block_given?
         end
+      end
+
+      def handle_exceptions(m, e)
+        case e
+        when Lastfm::ApiError
+          m.reply "Error from Last.fm: #{e.message.gsub(/\s+/, ' ').strip}."
+        else
+          bot.loggers.exception e
+          m.reply "Something went wrong."
+        end
+      end
+
+      # user - A Cinch::User.
+      def lastfm_name_for(user)
+        result = Models::User.first(
+          :conditions => ['LOWER(nickname) = ?', user.authname || user.nick]
+        )
         
-        return user.lastfm_name
+        return result.lastfm_name unless result.nil?
+      end
+
+      # user - A Cinch::User.
+      def current_artist_for(user)
+        track = try do
+          @client.user.get_recent_tracks :user => lastfm_name_for(user),
+                                         :limit => 1
+        end
+
+        # Some weirdness in the lastfm library. It returns an Array when a
+        # track is nowplaying, otherwise it returns a track Hash.
+        track = track.first if track.is_a? Array
+
+        return track['artist']['content'] unless track.nil?
       end
 
       def enumerate(array)
@@ -202,19 +293,6 @@ module Cinch
         elsif array.size == 1
           array.first
         end
-      end
-
-      def get_current_artist(m)
-        track = @client.user.get_recent_tracks(
-          :user => find_lastfm_username(m),
-          :limit => 1
-        )
-
-        track = track.first if track.is_a? Array
-
-        raise Lastfm::ApiError, "Please provide an artist." if track.nil?
-
-        return track['artist']['content']
       end
     end
   end
