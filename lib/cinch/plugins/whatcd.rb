@@ -22,7 +22,14 @@ module Cinch
       def initialize(*args)
         super
 
-        WhatCD::authenticate self.config[:username], self.config[:password]
+        warn "Please configure a username." if config[:username].nil?
+        warn "Please configure a password." if config[:password].nil?
+
+        unless config[:username].nil? || config[:password].nil?
+          WhatCD.authenticate config[:username], config[:password]
+        end
+      rescue WhatCD::AuthError => e
+        warn "Authenticating with What.CD failed."
       end
 
       def request(m, query)
@@ -95,7 +102,7 @@ module Cinch
           what_name    = user.host.split(".").first
           what_profile = urls "user.php?id=#{user.user}"
 
-          m.reply "#{nickname} is #{what_name} on what.cd => #{what_profile}"
+          m.reply "#{nickname} is #{what_name} on what.cd => #{what_profile}."
         else
           m.reply "#{nickname} did not speak with Drone yet."
         end
