@@ -37,13 +37,13 @@ bot = Cinch::Bot.new do
     c.password = ENV['PASSWORD']
     c.nick     = ENV['NICKNAME']
     c.user     = ENV['NICKNAME']
-    c.channels = [ENV['CHANNEL'], ENV['MONITOR_CHANNEL']]
+    c.channels = ENV['CHANNELS'].split(",") << ENV['MONITOR_CHANNEL']
     c.ssl.use  = true if ENV['SSL'] == "true"
 
     c.authentication = Cinch::Configuration::Authentication.new
     c.authentication.strategy = :channel_status
     c.authentication.level    = :h
-    c.authentication.channel  = ENV['CHANNEL']
+    c.authentication.channel  = ENV['AUTH_CHANNEL']
     
     c.plugins.plugins = [Cinch::Plugins::Links, Cinch::Plugins::Slang, 
       Cinch::Plugins::Recommend, Cinch::Plugins::Weather, Cinch::Plugins::Title,
@@ -86,7 +86,7 @@ bot = Cinch::Bot.new do
     c.plugins.options[Cinch::Plugins::Media] = {
       :url           => ENV['GALLERY_URL'],
       :secret        => ENV['GALLERY_SECRET'],
-      :channels      => [ENV['CHANNEL']],
+      :channels      => [ENV['CHANNELS'].split(",")],
       :ignored_hosts => ['https://fbcdn-sphotos-c-a.akamaihd.net/'],
       :ignored_tags  => [/nsfw/i, /nsfl/i, / personal/i, /ignore/i]
     }
