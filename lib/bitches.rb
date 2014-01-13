@@ -59,9 +59,9 @@ module Bitches
           # }
 
 
-          # require "bitches/plugins/links"
+          require "bitches/plugins/links"
 
-          # c.plugins.plugins << Bitches::Plugins::Links
+          c.plugins.plugins << Bitches::Plugins::Links
 
 
           # require "bitches/plugins/media"
