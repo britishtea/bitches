@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require "dotenv" and Dotenv.load
+require "bitches"
+
+usage = <<-USAGE
+usage: bitches [command] [options]
+
+commands 
+
+    start     Starts a bitches.
+    stop      Stops a bitches (requires -p).
+
+options
+
+    -p        Specify a pid or pid file
+    -h        Shows this message
+USAGE
+
+
+def start
+  if ENV["PID"]
+    File.open(ENV["PID"], "w") { |file| f.write Process.pid }
+  end
+  
+  Bitches.start! ENV["SERVER"], ENV["PORT"]
+end
+
+def stop
+  if ENV["PID"].nil?
+    abort "Please specify a pid using the -p flag."
+  elsif ENV["PID"] =~ /^\d+$/
+    Bitches.stop! ENV["PID"].to_i
+  else
+    Bitches.stop! File.read(ENV["PID"]).strip.to_i
+  end
+end
+
+
+require "clap"
+
+command = Clap.run ARGV, {
+  "-p" => lambda { |pid| ENV["PID"] = pid },
+  "-h" => lambda {       puts usage and exit },
+  "-v" => lambda {       puts Bitches::Bot::VERSION and exit }
+}
+
+case command.first
+  when "start"   then start
+  when "stop"    then stop
+  else                abort "usage:  bitches [command] [options]" if ARGV.empty? 
+end
