@@ -33,12 +33,12 @@ module Bitches
           c.authentication.level    = :h
           c.authentication.channel  = ENV["AUTH_CHANNEL"]
 
-          # require "bitches/plugins/big_brother"
+          require "bitches/plugins/big_brother"
 
-          # c.plugins.plugins << Bitches::Plugins::BigBrother
-          # c.plugins.options[Bitches::Plugins::BigBrother] = {
-          #   :channel => ENV["MONITOR_CHANNEL"]
-          # }
+          c.plugins.plugins << Bitches::Plugins::BigBrother
+          c.plugins.options[Bitches::Plugins::BigBrother] = {
+            :channel => ENV["MONITOR_CHANNEL"]
+          }
 
 
           # require "cinch/plugins/identify"
@@ -81,11 +81,6 @@ module Bitches
           # require "cinch/plugins/preview/youtube"
 
           # c.plugins.plugins << Cinch::Plugins::Preview
-
-
-          # require "bitches/plugins/recommend"
-
-          # c.plugins.plugins << Cinch::Plugins::Recommend
 
 
           # require "cinch/plugins/search"
