@@ -93,9 +93,9 @@ module Bitches
           # c.plugins.plugins << Cinch::Plugins::Slang
 
 
-          # require "bitches/plugins/weather"
+          require "bitches/plugins/weather"
 
-          # c.plugins.plugins << Bitches::Plugins::Weather
+          c.plugins.plugins << Bitches::Plugins::Weather
 
 
           # require "bitches/plugins/whatcd"

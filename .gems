@@ -13,3 +13,4 @@ google-search -v 1.0.3
 wikipedia-client -v 1.0.0
 dotenv -v 0.8.0
 yahoo_weatherman -v 2.0.0
+bonehead -v 0.0.1
