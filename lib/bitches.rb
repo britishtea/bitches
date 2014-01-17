@@ -50,13 +50,13 @@ module Bitches
           # }
 
 
-          # require "bitches/plugins/lastfm"
+          require "bitches/plugins/lastfm"
 
-          # c.plugins.plugins << Bitches::Plugins::LastFM
-          # c.plugins.options[Bitches::Plugins::LastFM] = {
-          #   :api_key    => ENV["LASTFM_KEY"],
-          #   :api_secret => ENV["LASTFM_SECRET"]
-          # }
+          c.plugins.plugins << Bitches::Plugins::LastFM
+          c.plugins.options[Bitches::Plugins::LastFM] = {
+            :api_key    => ENV["LASTFM_KEY"],
+            :api_secret => ENV["LASTFM_SECRET"]
+          }
 
 
           require "bitches/plugins/links"

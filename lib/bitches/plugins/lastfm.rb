@@ -1,7 +1,7 @@
-require 'lastfm'
-require 'insist'
+require "lastfm"
+require "bonehead" # TODO: Fix this.
 
-module Cinch
+module Bitches
   module Plugins
     class LastFM
       include Cinch::Plugin
@@ -9,8 +9,8 @@ module Cinch
       NOT_REGISTERED = "You are not registered. Use !setusername <last.fm " \
         "username> to register."
       
-      set :plugin_name => 'last',
-          :help        => 'Usage: see http://goo.gl/5Ar4QU.'
+      set :plugin_name => "last",
+          :help        => "Usage: see http://goo.gl/5Ar4QU."
       
       match /np$/i,       :group => :np, :method => :np_self
       match /np (\S+)$/i, :group => :np, :method => :np_other
@@ -250,7 +250,7 @@ module Cinch
     private
 
       def try
-        Insist.insist 3, Lastfm::ApiError do |try|
+        Bonehead.insist 3, Lastfm::ApiError do |try|
           sleep 0.1 if try > 0
           yield if block_given?
         end
