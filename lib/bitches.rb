@@ -64,16 +64,16 @@ module Bitches
           c.plugins.plugins << Bitches::Plugins::Links
 
 
-          # require "bitches/plugins/media"
+          require "bitches/plugins/media"
 
-          # c.plugins.plugins << Bitches::Plugins::Media
-          # c.plugins.options[Bitches::Plugins::Media] = {
-          #   :url           => ENV["GALLERY_URL"],
-          #   :secret        => ENV["GALLERY_SECRET"],
-          #   :channels      => [ENV["CHANNELS"].split(",")],
-          #   :ignored_hosts => ["https://fbcdn-sphotos-c-a.akamaihd.net/"],
-          #   :ignored_tags  => [/nsfw/i, /nsfl/i, /ignore/i]
-          # }
+          c.plugins.plugins << Bitches::Plugins::Media
+          c.plugins.options[Bitches::Plugins::Media] = {
+            :url           => ENV["GALLERY_URL"],
+            :secret        => ENV["GALLERY_SECRET"],
+            :channels      => ENV["CHANNELS"].split(","),
+            :ignored_hosts => ["https://fbcdn-sphotos-c-a.akamaihd.net/"],
+            :ignored_tags  => ["nsfw", "nsfl", "ignore"]
+          }
 
 
           # require "cinch/plugins/preview"
