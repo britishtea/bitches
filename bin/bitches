@@ -13,14 +13,15 @@ commands
 
 options
 
-    -p        Specify a pid or pid file
+    -p        Specify a pid file
+    -v        Prints the version number
     -h        Shows this message
 USAGE
 
 
 def start
   if ENV["PID"]
-    File.open(ENV["PID"], "w") { |file| f.write Process.pid }
+    File.open(ENV["PID"], "w") { |file| file.write Process.pid }
   end
   
   Bitches.start! ENV["SERVER"], ENV["PORT"]
@@ -28,9 +29,7 @@ end
 
 def stop
   if ENV["PID"].nil?
-    abort "Please specify a pid using the -p flag."
-  elsif ENV["PID"] =~ /^\d+$/
-    Bitches.stop! ENV["PID"].to_i
+    abort "Please specify a pid file using the -p flag."
   else
     Bitches.stop! File.read(ENV["PID"]).strip.to_i
   end
