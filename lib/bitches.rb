@@ -98,13 +98,15 @@ module Bitches
           c.plugins.plugins << Bitches::Plugins::Weather
 
 
-          # require "bitches/plugins/whatcd"
+          if ENV.key?("WHATCD_COOKIE")
+            require "cinch/plugins/preview/whatcd"
+            require "bitches/plugins/whatcd"
 
-          # c.plugins.plugins << Bitches::Plugins::WhatCD
-          # c.plugins.options[Bitches::Plugins::WhatCD] = {
-          #   :username => ENV["WHATCD_USERNAME"],
-          #   :password => ENV["WHATCD_PASSWORD"]
-          # }
+            c.plugins.plugins << Bitches::Plugins::WhatCD
+            c.plugins.options[Bitches::Plugins::WhatCD] = {
+              :cookie => ENV["WHATCD_COOKIE"]
+            }
+          end
 
 
           # c.plugins.plugins << Cinch::Plugins::IMDb
