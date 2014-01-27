@@ -85,6 +85,7 @@ module Bitches
 
 
           require "cinch/plugins/preview"
+          require "cinch/plugins/preview/imdb"
           require "cinch/plugins/preview/title"
           require "cinch/plugins/preview/youtube"
 
@@ -117,26 +118,9 @@ module Bitches
           end
 
 
-          # c.plugins.plugins << Cinch::Plugins::IMDb
-          # c.plugins.options[Cinch::Plugins::IMDb] = {
-          #   :standard => lambda do |movie|
-          #     msg  = movie.title.dup
-          #     msg << " (#{movie.release_date.year})" unless movie.release_date.nil?
-          #     msg << " - #{Integer(movie.runtime) / 60} min" unless movie.runtime.nil?
-          #     msg << " - #{('★' * movie.rating + '☆' * 10)[0..9]}" unless movie.rating.nil?
-          #     msg << " - #{movie.plot}" unless movie.plot.nil?
-              
-          #     unless movie.genres.nil?
-          #       msg << " http://www.imdb.com/title/#{movie.imdb_id}/"
-          #     end
+          require "cinch/plugins/imdb"
 
-          #     return msg
-          #   end,
-          #   :fact => lambda do |movie, fact, result|
-          #     result = "#{Integer(movie.runtime) / 60} min" if fact == 'runtime'
-          #     "#{movie.title.capitalize} #{fact}: #{result}"
-          #   end
-          # }
+          c.plugins.plugins << Cinch::Plugins::IMDb
         end
 
         on :message, "!help" do |m|

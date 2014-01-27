@@ -15,3 +15,4 @@ nokogiri -v 1.6.1
 google-search -v 1.0.3
 youtube_it -v 2.4.0
 dotenv -v 0.9.0
+imdb -v 0.8.0
