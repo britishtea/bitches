@@ -76,11 +76,11 @@ module Bitches
           }
 
 
-          # require "cinch/plugins/preview"
-          # require "cinch/plugins/preview/title"
-          # require "cinch/plugins/preview/youtube"
+          require "cinch/plugins/preview"
+          require "cinch/plugins/preview/title"
+          require "cinch/plugins/preview/youtube"
 
-          # c.plugins.plugins << Cinch::Plugins::Preview
+          c.plugins.plugins << Cinch::Plugins::Preview
 
 
           require "cinch/plugins/search"
