@@ -80,8 +80,6 @@ module Bitches
       BASE_URI = URI.parse "https://what.cd/"
 
       def format_torrent(torrent)
-        require "pry" and binding.pry
-
         url       = BASE_URI + "torrents.php"
         url.query = URI.encode_www_form :id => torrent["groupId"]
 
