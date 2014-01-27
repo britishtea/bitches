@@ -83,9 +83,9 @@ module Bitches
           # c.plugins.plugins << Cinch::Plugins::Preview
 
 
-          # require "cinch/plugins/search"
+          require "cinch/plugins/search"
 
-          # c.plugins.plugins << Cinch::Plugins::Search
+          c.plugins.plugins << Cinch::Plugins::Search
 
 
           # require "cinch/plugins/slang"

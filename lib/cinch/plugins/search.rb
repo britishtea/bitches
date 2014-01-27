@@ -1,141 +1,96 @@
 # encoding: utf-8
-require 'cgi'
-require 'google-search'
-require 'shortly'
-require 'wikipedia'
-require 'youtube_it'
+require "cgi"
+require "net/http"
+require "uri"
+require "google-search"
+require "youtube_it"
 
 module Cinch
   module Plugins
     class Search
       include Cinch::Plugin
 
-      set :plugin_name, 'search'
-      set :help, 'Usage: !<google|g|youtube|yt|w> <search term>'
+      set :plugin_name => "search",
+          :help        => "Usage: !<g|google|yt|youtube> <search term>"
 
-      match /google more/s,  :method => :more,    :group => :google
-      match /google (.+)/s,  :method => :google,  :group => :google
-      match /g more/s,       :method => :more,    :group => :g
-      match /g (.+)/s,       :method => :g,       :group => :g
+      match /google (.+)/s,  :method => :google
+      match /g (.+)/s,       :method => :g
       match /youtube (.+)/s, :method => :youtube
-      match /yt (.+)/s,      :method => :yt
-      match /w (.+)/s,       :method => :w      
-
-      NoResults = Class.new StandardError
+      match /yt (.+)/s,      :method => :yt 
 
       def initialize(*args)
         super
 
-        @isgd    = Shortly::Clients::Isgd
-        @more    = {}
         @youtube = YouTubeIt::Client.new
       end
 
-      def more(m)
-        return unless @more.has_key? m.user
-
-        url = "https://google.com/search?q=#{CGI.escape @more[m.user]}"
-        m.reply "More results on #{@isgd.shorten(url).shorturl}"
+      def g(m, query)
+        m.reply search_google(query, 1)
       end
 
       def google(m, query)
-        results = google_search(m, query).first 3
-        size    = results.size
-        msg     = results.inject("Top #{size > 3 ? 3 : size}:") do |obj, item|
-          title = CGI.unescape_html item.title
-          obj << " #{title} - #{@isgd.shorten(item.uri).shorturl} |"
-        end
-
-        m.reply msg[0..-3]
-      rescue NoResults => e
-        m.reply e.message
-      rescue => e
-        m.reply "Something broked."
-        bot.loggers.error e.message
-        bot.loggers.error e.backtrace
-      end
-
-      def g(m, query)
-        result = google_search(m, query).first
-        title  = CGI.unescape_html result.title
-        
-        m.reply "#{title} - #{@isgd.shorten(result.uri).shorturl}"
-      rescue NoResults => e
-        m.reply e.message
-      rescue => e
-        m.reply "Something broked."
-        bot.loggers.error e.message
-        bot.loggers.error e.backtrace
-      end
-
-      def youtube(m, query)
-        results = youtube_search(m, query).first 3
-        size    = results.size
-        msg     = results.inject("Top #{size > 3 ? 3 : size}:") do |obj, item|
-          title    = CGI.unescape_html item.title
-          duration = Time.at(item.duration).gmtime.strftime '%R:%S'
-          duration = duration[3..-1] if duration.start_with? '00'
-          url      = @isgd.shorten(item.player_url).shorturl
-
-          obj << " #{title} [#{duration}] - #{url} |"
-        end
-
-        m.reply msg[0..-3]
-      rescue NoResults => e
-        m.reply e.message
-      rescue
-        m.reply "Something broked."
-        bot.loggers.error e.message
-        bot.loggers.error e.backtrace        
+        m.reply search_google(query, 3)
       end
 
       def yt(m, query)
-        result = youtube_search(m, query).first
-
-        title    = CGI.unescape_html result.title
-        duration = Time.at(result.duration).gmtime.strftime '%R:%S'
-        duration = duration[3..-1] if duration.start_with? '00'
-        url      = @isgd.shorten(result.player_url).shorturl
-        rating   = ('★' * (result.rating.average rescue 0).ceil + '☆' * 5)[0..4]
-
-        m.reply "#{title} [#{duration}] - #{rating} - #{url}"
-      rescue NoResults => e
-        m.reply e.message
-      rescue => e
-        m.reply "Something broked."
-        bot.loggers.error e.message
-        bot.loggers.error e.backtrace
+        m.reply search_youtube(query, 1)
       end
 
-      def w(m, query)
-        page = Wikipedia.find query
-
-        if page.content.nil?
-          m.reply "No Results"
-        else
-          url  = @isgd.shorten 'http://en.wikipedia.org/wiki/' + 
-            page.title.gsub(/\s/, '_')
-
-          m.reply "#{page.title} - #{url.shorturl}"
-        end
+      def youtube(m, query)
+        m.reply search_youtube(query, 3)
       end
 
     private
 
-      def google_search(m, query)
-        @more[m.user] = query
-        results       = ::Google::Search::Web.new :query => query
-        raise NoResults, "No results" if results.response.estimated_count == 0
+      def search_google(query, n)
+        results = Google::Search::Web.new(:query => query).first(n)
 
-        return results      
+        if results.empty?
+          "No result#{"s" if n > 1} for \"#{query}\"."
+        else
+          results.map { |item| create_google_preview item }.join " | "
+        end
+      rescue => e
+        bot.loggers.exception e
+        "Something went wrong while searching Google."
       end
 
-      def youtube_search(m, query)
-        @more[m.user] = query
-        results       = @youtube.videos_by :query => query, :per_page => 3
-        raise NoResults, "No results" if results.total_result_count == 0
+      def create_google_preview(item)
+        "#{CGI.unescape_html item.title} - #{shorten_uri item.uri}"
+      end
 
-        return results.videos
+      def search_youtube(query, n)
+        results = @youtube.videos_by(:query => query, :per_page => n).videos
+
+        if results.empty?
+          "No result#{"s" if n > 1} for \"#{query}\"."
+        else
+          results.map { |video| create_youtube_preview video }.join " | "
+        end
+      rescue => e
+        bot.loggers.exception e
+        "Something went wrong while searching YouTube."
+      end
+
+      def create_youtube_preview(video)
+        title     = CGI.unescape_html video.title
+        duration  = Time.at(video.duration).gmtime.strftime "%R:%S"
+        duration  = duration[3..-1] if duration.start_with? "00"
+        short_url = shorten_uri video.player_url
+        rating    = ("★" * (video.rating.average rescue 0).ceil).ljust 5, "☆"
+
+        "#{title} [#{duration}] - #{rating} - #{short_url}"
+      end
+
+      ISGD_URI = URI "http://is.gd/create.php"
+
+      def shorten_uri(uri)
+        res = Net::HTTP.post_form ISGD_URI, :format => "simple", :url => uri
+
+        res.code == "200" ? res.body : uri
+      rescue => e
+        bot.loggers.exception e
+        uri
       end
     end
   end
