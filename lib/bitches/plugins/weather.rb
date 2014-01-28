@@ -44,15 +44,16 @@ module Bitches
         u.query = URI.encode_www_form :units => "metric"
       end
 
-      DIRECTIONS = { 
-        348.75...11.25  => 'North',      11.25..33.75   => 'North North-East', 
-        33.75...56.25   => 'North-East', 56.25..78.75   => 'East North-East',
-        78.75...101.25  => 'East',       101.25..123.75 => 'East South-East',
-        123.75...146.25 => 'South-East', 146.25..168.75 => 'South South-East',
-        168.75...191.25 => 'South',      191.25..213.75 => 'South South-West',
-        213.75...236.25 => 'South-West', 236.25..258.75 => 'West South-West',
-        258.75...281.25 => 'West',       281.25..303.75 => 'West North-West',
-        303.75...326.25 => 'North-West', 326.25..348.75 => 'North North-West'
+      DIRECTIONS = {
+        0.00..11.25    => 'North',      11.26..33.74   => 'North North-East', 
+        33.75..56.25   => 'North-East', 56.26..78.74   => 'East North-East',
+        78.75..101.25  => 'East',       101.26..123.74 => 'East South-East',
+        123.75..146.25 => 'South-East', 146.26..168.74 => 'South South-East',
+        168.75..191.25 => 'South',      191.26..213.74 => 'South South-West',
+        213.75..236.25 => 'South-West', 236.26..258.74 => 'West South-West',
+        258.75..281.25 => 'West',       281.26..303.74 => 'West North-West',
+        303.75..326.25 => 'North-West', 326.26..348.74 => 'North North-West',
+        348.75..360.00 => 'North'
       }
 
       def handle_exceptions(m, e)
@@ -81,7 +82,7 @@ module Bitches
           "#{direction weather["wind"]["deg"]}" 
         humidity    = "Humidity: #{weather["main"]["humidity"]}%"
 
-        "#{location}: #{description}. #{temperature}. #{wind}, #{humidity}."
+        "#{location}. #{description}. #{temperature}. #{wind}. #{humidity}."
       end
 
       def fahrenheit(celcius)
