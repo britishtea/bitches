@@ -51,8 +51,9 @@ module Cinch
 
           cleaned_title = title.gsub(/\s+/, ' ').strip
           cleaned_title.force_encoding file.charset unless file.charset.nil?
+          title         = "Title: #{CGI.unescape_html cleaned_title}"
 
-          "Title: #{CGI.unescape_html cleaned_title} [#{file.status.join " "}]"
+          file.status[0] == "200" ? title : title + " [#{file.status.join " "}]"
         end
       end
 
