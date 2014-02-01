@@ -122,6 +122,10 @@ module Bitches
         nickname = m.user.authname || m.user.nick
         
         user = Models::User.first_or_create :nickname => nickname
+
+        # This will raise if lastfm_name doesn't exist.
+        @client.user.get_info(:user => lastfm_name)['user']['name']
+
         user.update :lastfm_name => lastfm_name
 
         m.reply "You have been registered as #{lastfm_name}."
