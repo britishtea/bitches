@@ -18,7 +18,9 @@ Note: You'll need Ruby 1.9.3 and [git](http://git-scm.com/).
 
 ## Usage
 
-See [HELP.md](https://github.com/britishtea/bitches/blob/master/HELP.md).
+See [HELP.md][help].
+
+[help]: https://github.com/britishtea/bitches/blob/master/docs/HELP.md
 
 ## License - MIT License
 
