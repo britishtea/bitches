@@ -40,9 +40,7 @@ module Bitches
 
     private
 
-      BASE_URI = URI("http://api.openweathermap.org/data/2.5").tap do |u|
-        u.query = URI.encode_www_form :units => "metric"
-      end
+      BASE_URI = URI("http://api.openweathermap.org")
 
       DIRECTIONS = {
         0.00..11.25    => 'North',      11.26..33.74   => 'North North-East', 
@@ -62,9 +60,8 @@ module Bitches
       end
       
       def weather_for(location)
-        uri       = BASE_URI.dup
-        uri.path += "/weather"
-        uri.query = URI.encode_www_form q: location, units: "metric"
+        uri       = BASE_URI + "/data/2.5/weather"
+        uri.query = URI.encode_www_form :q => location, :units => "metric"
 
         weather = Bonehead.insist 3 do
           open(uri) { |f| JSON.parse f.read }
@@ -73,8 +70,7 @@ module Bitches
         return weather["message"] unless weather["cod"] == 200
 
         location    = "#{weather["name"]}, #{weather["sys"]["country"]}"
-        description = "#{weather["weather"].first["main"]}, " \
-          "#{weather["weather"].first["description"]}"
+        description = weather["weather"].first["description"].capitalize
         temperature = "#{Integer(weather["main"]["temp"]).ceil}º C " \
           "(#{fahrenheit weather["main"]["temp"]}º F)"
         wind        = "Wind: #{Integer(weather["wind"]["speed"]).ceil} km/h " \
