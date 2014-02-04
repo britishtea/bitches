@@ -123,12 +123,13 @@ module Bitches
         
         user = Models::User.first_or_create :nickname => nickname
 
-        # This will raise if lastfm_name doesn't exist.
-        @client.user.get_info(:user => lastfm_name)['user']['name']
-
-        user.update :lastfm_name => lastfm_name
-
-        m.reply "You have been registered as #{lastfm_name}."
+        # This will raise sometimes.
+        if @client.user.get_info(:user => lastfm_name)
+          user.update :lastfm_name => lastfm_name
+          m.reply "You have been registered as #{lastfm_name}."
+        else
+          m.reply "There is no #{lastfm_name} on Last.fm."
+        end
       rescue => e
         handle_exceptions m, e
       end
