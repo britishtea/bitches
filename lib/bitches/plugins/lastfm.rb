@@ -74,6 +74,7 @@ module Bitches
 
       match /co(?:mpare)? (\S+)$/i,       :group => :co, :method => :co_self
       match /co(?:mpare)? (\S+) (\S+)$/i, :group => :co, :method => :co_other
+      match /coham$/i,                    :group => :co, :method => :coham
 
       def co_self(m, nick)
         unless lastfm_name_for m.user
@@ -88,6 +89,12 @@ module Bitches
 
       def co_other(m, nick_one, nick_two)
         m.reply compare(nick_one, nick_two)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def coham(m)
+        m.reply compare("moham", m.user)
       rescue => e
         handle_exceptions m, e
       end
