@@ -1,3 +1,4 @@
+require "bitches/helpers"
 require "whatcd"
 
 module Cinch
@@ -10,42 +11,40 @@ module Cinch
         end
 
         def call(uri)
-          return false unless uri.path == "/torrents.php"
+          case uri.path
+            when "/torrents.php" then return torrent_preview(uri)
+            when "/forums.php"   then return thread_preview(uri)
+            when "/user.php"     then return user_preview(uri)
+            else                      return false
+          end
+        rescue ::WhatCD::APIError
+          return false
+        end
 
+      private 
+
+        def torrent_preview(uri)
           release = @client.fetch :torrentgroup, :id => uri.query[/\d+/]
 
-          if release["group"]["categoryName"] == "Music"
-            msg = create_music_preview(release)
-          else
-            msg = create_general_preview(release)
-          end
-
-          return CGI.unescapeHTML(msg)
+          return Bitches::Helpers.whatcd_torrentgroup_preview release
         end
 
-      private
+        def thread_preview(uri)
+          query = Hash[URI.decode_www_form uri.query]
 
-        def create_music_preview(release)
-          artists = release["group"]["musicInfo"]["artists"]
+          return false unless query.key? "threadid"
 
-          if artists.size == 1
-            artist = artists.first["name"]
-          elsif artists.size.between?(1, 4)
-            last   = artists.pop["name"]
-            artist = "#{artists.map { |a| a["name"] }.join ", "} & #{last}"
-          else
-            artist = "Various Artists"
-          end
-          
-          name      = release["group"]["name"]
-          year      = release["group"]["year"]
-          encodings = release['torrents'].map { |t| t['encoding'] }.uniq
+          thread = @client.fetch :forum, :type     => "viewthread",
+                                         :threadid => query["threadid"]
 
-          "#{artist} - #{name} (#{year}) [#{encodings.join ' / '}]"
+          return Bitches::Helpers.whatcd_thread_preview thread
         end
 
-        def create_general_preview(release)
-          "#{release["group"]["categoryName"]}: #{release["group"]["name"]}"
+        def user_preview(uri)
+          query = Hash[URI.decode_www_form uri.query]
+          user  = @client.fetch :user, :id => query["id"]
+
+          return Bitches::Helpers.whatcd_user_preview user
         end
       end
 

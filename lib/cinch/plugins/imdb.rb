@@ -1,4 +1,5 @@
 # Encoding: utf-8
+require "bitches/helpers"
 require "imdb"
 
 module Cinch
@@ -42,15 +43,7 @@ module Cinch
       end
 
       def create_movie_preview(movie)
-        preview  = movie.title true
-        preview += " (#{movie.year})"                         if movie.year
-        preview += " - #{movie.length} min"                   if movie.length
-        preview += " - #{("★" * movie.rating).ljust 10, "☆"}" if movie.rating
-        preview += " - #{movie.plot}"                         if movie.plot
-        preview += " [#{movie.genres.join ", "}]"             if movie.genres
-        preview += " - #{movie.url}"
-
-        return preview
+        "#{Bitches::Helpers.imdb_preview movie} - #{movie.url}"
       end
 		end
 	end

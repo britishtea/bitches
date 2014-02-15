@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "bitches/helpers"
 require "cgi"
 require "net/http"
 require "uri"
@@ -73,13 +74,10 @@ module Cinch
       end
 
       def create_youtube_preview(video)
-        title     = CGI.unescape_html video.title
-        duration  = Time.at(video.duration).gmtime.strftime "%R:%S"
-        duration  = duration[3..-1] if duration.start_with? "00"
+        preview   = Bitches::Helpers.youtube_preview video
         short_url = shorten_uri video.player_url
-        rating    = ("★" * (video.rating.average rescue 0).ceil).ljust 5, "☆"
 
-        "#{title} [#{duration}] - #{rating} - #{short_url}"
+        "#{preview} - #{short_url}"
       end
 
       ISGD_URI = URI "http://is.gd/create.php"

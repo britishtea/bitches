@@ -1,3 +1,4 @@
+require "bitches/helpers"
 require "clap"
 require "shellwords"
 require "whatcd"
@@ -94,10 +95,10 @@ module Bitches
       end
 
       def format_user(user)
-        what_name    = user.host.split(".").first
-        what_profile = BASE_URI + "user.php?id=#{user.user}"
+        url  = BASE_URI + "user.php?id=#{user.user}"
+        user = @client.fetch :user, :id => user.user
 
-        "#{user.nick} is #{what_name} on what.cd => #{what_profile}."
+        "#{Bitches::Helpers.whatcd_user_preview user} => #{url}"
       end
 
       def handle_exeptions(m, e)

@@ -1,4 +1,5 @@
 # Encoding: utf-8
+require "bitches/helpers"
 require "youtube_it"
 
 module Cinch
@@ -12,11 +13,7 @@ module Cinch
         def call(uri)
           video = @client.video_by uri.to_s
 
-          rating   = ("★" * video.rating.average.ceil).ljust 5, "☆"
-          duration = Time.at(video.duration).gmtime.strftime "%R:%S"
-          duration = duration[3..-1] if duration.start_with? "00"
-
-          "#{video.title} [#{duration}] - #{rating}"
+          Bitches::Helpers.youtube_preview video
         rescue OpenURI::HTTPError => e
           false
         end
