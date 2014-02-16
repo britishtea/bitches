@@ -68,7 +68,8 @@ module Bitches
             message = "<#{m.user}> #{m.message}"
           end
 
-          m.reply "Achtung!! #{message.gsub match, Format(:bold, match)}"
+          Channel(config[:channel]).send "Achtung!! " \
+            "#{message.gsub match, Format(:bold, match)}"
         end
       end
 
