@@ -13,7 +13,6 @@ module Bitches
       preview += " - #{("★" * movie.rating).ljust 10, "☆"}" if movie.rating
       preview += " - #{movie.plot}"                         if movie.plot
       preview += " [#{movie.genres.join ", "}]"             if movie.genres
-      preview += " - #{movie.url}"
 
       return preview
     end
