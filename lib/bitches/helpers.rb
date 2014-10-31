@@ -47,6 +47,16 @@ module Bitches
       "#{username} (#{rank}) - ↑#{upload} ↓#{download} (#{ratio})"
     end
 
+    def whatcd_request_preview(request)
+      title  = request["title"]
+      year   = request["year"]
+      votes  = request["voteCount"]
+      bounty = filesize request["totalBounty"]
+      status = request["isFilled"] ? "filled" : "unfilled"
+
+      "#{title} (#{year}) [#{bounty} / #{status}]"
+    end
+
     def youtube_preview(video)
       rating   = ("★" * video.rating.average.ceil).ljust 5, "☆"
       duration = Time.at(video.duration).gmtime.strftime "%R:%S"

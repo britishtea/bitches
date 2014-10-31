@@ -15,6 +15,7 @@ module Cinch
             when "/torrents.php" then return torrent_preview(uri)
             when "/forums.php"   then return thread_preview(uri)
             when "/user.php"     then return user_preview(uri)
+            when "/requests.php" then return request_preview(uri)
             else                      return false
           end
         rescue ::WhatCD::APIError
@@ -45,6 +46,13 @@ module Cinch
           user  = @client.fetch :user, :id => query["id"]
 
           return Bitches::Helpers.whatcd_user_preview user
+        end
+
+        def request_preview(uri)
+          query = Hash[URI.decode_www_form uri.query]
+          request = @client.fetch :request, :id => query["id"]
+
+          return Bitches::Helpers.whatcd_request_preview request
         end
       end
 
