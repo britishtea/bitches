@@ -127,7 +127,7 @@ module Bitches
           m.reply "See http://goo.gl/ZFy1V."
         end
 
-        on :message, /^!(\S+)ing/i do |m, char|
+        on :message, /^!(\S+)ing$/i do |m, char|
           m.reply "#{char}ong"
         end
       end
