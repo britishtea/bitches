@@ -37,13 +37,19 @@ def stop
   end
 end
 
+def set_env(env)
+  abort ".env.#{env} does not exist" unless File.exist? ".env.#{env}"
+  Dotenv.overload ".env.#{env}"
+end
+
 
 require "clap"
 
 command = Clap.run ARGV, {
   "-p" => lambda { |pid| ENV["PID"] = pid },
   "-h" => lambda {       puts usage and exit },
-  "-v" => lambda {       puts Bitches::Bot::VERSION and exit }
+  "-v" => lambda {       puts Bitches::Bot::VERSION and exit },
+  "-e" => lambda { |env| set_env env }
 }
 
 case command.first
