@@ -42,16 +42,17 @@ module Bitches
         query   = Clap.run Shellwords.split(arguments),
           "--tag"  => proc { |tag|  options[:taglist] << tag  },
           "--year" => proc { |year| options[:year]     = year }
+        query   = query.join " "
 
-        torrent = find_torrent query.join(" "), options
+        torrent = find_torrent query, options
 
         if torrent.nil?
-          m.reply "No results for \"#{options[:searchstr]}\""
+          m.reply "No results for \"#{query}\""
         else
           m.reply format_torrent(torrent)
         end
       rescue Errno::ETIMEDOUT
-        m.reply "Timed out while searching \"#{query.join " "}\" on What.CD."
+        m.reply "Timed out while searching \"#{query}\" on What.CD."
       rescue => e
         handle_exeptions m, e
       end
