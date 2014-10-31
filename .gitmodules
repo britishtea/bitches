@@ -1,3 +1,0 @@
-[submodule "vendor/insist"]
-	path = vendor/insist
-	url = git://github.com/britishtea/insist.git
