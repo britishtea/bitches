@@ -17,6 +17,17 @@ module Bitches
       return preview
     end
 
+    def whatcd_artist_preview(artist)
+      name    = artist["name"]
+      vh      = artist["vanityHouse"] ? "[VH] " : ""
+      tags    = artist["tags"].sort_by { |t| t["count"] }
+                              .first(3)
+                              .map { |t| t["name"] }
+                              .join ", "
+
+      "#{name} #{vh}- [#{tags}]"
+    end
+
     # release - A Hash.
     def whatcd_torrentgroup_preview(release)
       if release["group"]["categoryName"] == "Music"

@@ -12,6 +12,7 @@ module Cinch
 
         def call(uri)
           case uri.path
+            when "/artist.php" then return artist_preview(uri)
             when "/torrents.php" then return torrent_preview(uri)
             when "/forums.php"   then return thread_preview(uri)
             when "/user.php"     then return user_preview(uri)
@@ -22,7 +23,17 @@ module Cinch
           return false
         end
 
-      private 
+      private
+
+        def artist_preview(uri)
+          query = Hash[URI.decode_www_form uri.query]
+
+          return false unless query.key? "id"
+
+          artist = @client.fetch :artist, :id => query["id"]
+          
+          return Bitches::Helpers.whatcd_artist_preview artist
+        end
 
         def torrent_preview(uri)
           release = @client.fetch :torrentgroup, :id => uri.query[/\d+/]
