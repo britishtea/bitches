@@ -16,6 +16,7 @@ commands
 options
 
     -p        Specify a pid file
+    -e        Specify a environment (the .env.[environment] file will be loaded)
     -v        Prints the version number
     -h        Shows this message
 USAGE

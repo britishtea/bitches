@@ -11,7 +11,7 @@ It is written in Ruby and relies on [Cinch](https://github.com/cinchrb/cinch).
 1. Clone the repository: `git clone git://github.com/britishtea/bitches.git 
 bitches && cd bitches`.
 2. Install dependencies: `gem install dep && dep install`.
-3. Edit the .env file to configure the environment. 
+3. Create a .env file (edit the .env.sample) to configure the environment. 
 4. Run it: `bin/bitches start`.
 
 Note: You'll need Ruby 1.9.3 and [git](http://git-scm.com/).
