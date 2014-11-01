@@ -1,5 +1,6 @@
 require "bitches/helpers"
 require "clap"
+require "date"
 require "shellwords"
 require "whatcd"
 
@@ -20,6 +21,15 @@ module Bitches
 
         @client = ::WhatCD::Client.new
 
+        if config.key? :channels
+          @latest = DateTime.now
+          
+          timer = Timer(600, &method(:announcements))
+          timer.start
+        else
+          warn "Announcements are disabled because no channels were configured."
+        end
+
         if config.key?(:cookie)
           @client.set_cookie config[:cookie]
         elsif config.key?(:username) && config.key?(:password)
@@ -29,13 +39,24 @@ module Bitches
         end
       rescue ::WhatCD::AuthError => e
         warn "Authenticating with What.CD failed."
-        require "pry" and binding.pry
       end
 
-      SEARCH_OPTIONS = {  
-        "--tag"  => proc { |tag|  options[:taglist] << tag  },
-        "--year" => proc { |year| options[:year]     = year }
-      }
+      def announcements
+        announcements = @client.fetch(:announcements)["announcements"]
+        announcements.sort_by! { |a| DateTime.parse a["newsTime"] }
+
+        newest = announcements[-1]
+
+        if DateTime.parse(newest["newsTime"]) > @latest
+          @latest = DateTime.now
+
+          config[:channels].each do |channel|
+            Channel(channel).send format_announcement(newest)
+          end
+        end
+      rescue => e
+        bot.loggers.exception e
+      end
 
       def torrent(m, arguments)
         options = { :taglist => [] }
@@ -100,6 +121,13 @@ module Bitches
         user = @client.fetch :user, :id => user.user
 
         "#{Bitches::Helpers.whatcd_user_preview user} => #{url}"
+      end
+
+      def format_announcement(announcement)
+        title = announcement["title"]
+        url   = BASE_URI + "index.php#news#{announcement["newsId"]}"
+
+        "Announcement: #{title} => #{url}"
       end
 
       def handle_exeptions(m, e)

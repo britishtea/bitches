@@ -113,7 +113,8 @@ module Bitches
 
             c.plugins.plugins << Bitches::Plugins::WhatCD
             c.plugins.options[Bitches::Plugins::WhatCD] = {
-              :cookie => ENV["WHATCD_COOKIE"]
+              :cookie   => ENV["WHATCD_COOKIE"],
+              :channels => ENV["CHANNELS"].split(",")
             }
           end
 
