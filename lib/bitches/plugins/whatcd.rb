@@ -42,8 +42,13 @@ module Bitches
       end
 
       def announcements
-        announcements = @client.fetch(:announcements)["announcements"]
+        news = @client.fetch(:announcements)
+
+        announcements = news["announcements"]
         announcements.sort_by! { |a| DateTime.parse a["newsTime"] }
+
+        blog_posts = news["blogPosts"]
+        blog_posts.sort_by { |p| DateTime.parse p["blogTime"] }
 
         newest = announcements[-1]
 
@@ -52,6 +57,16 @@ module Bitches
 
           config[:channels].each do |channel|
             Channel(channel).send format_announcement(newest)
+          end
+        end
+
+        newest = blog_posts[-1]
+
+        if DateTime.parse(newest["blogTime"]) > @latest
+          @latest = DateTime.now
+
+          config[:channels].each do |channel|
+            Channel(channel).send format_blog_post(newest)
           end
         end
       rescue => e
@@ -127,7 +142,15 @@ module Bitches
         title = announcement["title"]
         url   = BASE_URI + "index.php#news#{announcement["newsId"]}"
 
-        "Announcement: #{title} => #{url}"
+        "[New Announcement] #{title} => #{url}"
+      end
+
+      def format_blog_post(blog_post)
+        title = blog_post["title"]
+        id    = blog_post["threadId"]
+        url   = BASE_URI + "forums.php?action=viewthread&threadid=#{id}"
+
+        "[New blog post] #{title} => #{url}"
       end
 
       def handle_exeptions(m, e)
