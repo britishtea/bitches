@@ -56,15 +56,29 @@ module Bitches
       BASE_URI = URI("http://api.wunderground.com/api/")
       
       def weather_for(location)
+        location = URI.escape location
         uri = BASE_URI + "#{config[:api_key]}/conditions/q/#{location}.json"
 
         weather = Bonehead.insist 3 do
           open(uri) { |f| JSON.parse(f.read) }
         end
 
+        require 'pp'
+        pp weather
+
         if weather["response"].key? "error"
           return "Error from Wunderground: " + 
             weather["response"]["error"]["description"]
+        elsif weather["response"].key? "results"
+          places = weather["response"]["results"].map do |place|
+            if place["state"].empty?
+              "#{place["name"]}, #{place["country_iso3166"]}"
+            else
+              "#{place["name"]}, #{place["state"]}, #{place["country_iso3166"]}"
+            end
+          end
+
+          return "Try again with one of these: #{places * ' | '}"
         else
           return format_weather weather["current_observation"]
         end
