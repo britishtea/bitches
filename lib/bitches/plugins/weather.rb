@@ -63,9 +63,6 @@ module Bitches
           open(uri) { |f| JSON.parse(f.read) }
         end
 
-        require 'pp'
-        pp weather
-
         if weather["response"].key? "error"
           return "Error from Wunderground: " + 
             weather["response"]["error"]["description"]
