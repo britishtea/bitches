@@ -16,12 +16,20 @@ module Bitches
       match /weather$/s,     :group => :weather, :method => :cached_location
       match /weather (.+)/s, :group => :weather, :method => :change_location
 
+      def initialize(*args)
+        super
+
+        unless config.key? :api_key
+          warn "No :api_key setting found for plugin #{self.class}"
+        end
+      end
+
       def cached_location(m)
         user = Models::User.find_user m.user.authname || m.user.nick
 
         if user.location.nil?
           m.reply "Tell me where you are first (!weather location), I'll " \
-          "remember after that."
+            "remember after that."
         else
           m.reply weather_for user.location
         end
@@ -40,57 +48,37 @@ module Bitches
 
     private
 
-      BASE_URI = URI("http://api.openweathermap.org")
-
-      DIRECTIONS = {
-        0.00..11.25    => 'North',      11.26..33.74   => 'North North-East', 
-        33.75..56.25   => 'North-East', 56.26..78.74   => 'East North-East',
-        78.75..101.25  => 'East',       101.26..123.74 => 'East South-East',
-        123.75..146.25 => 'South-East', 146.26..168.74 => 'South South-East',
-        168.75..191.25 => 'South',      191.26..213.74 => 'South South-West',
-        213.75..236.25 => 'South-West', 236.26..258.74 => 'West South-West',
-        258.75..281.25 => 'West',       281.26..303.74 => 'West North-West',
-        303.75..326.25 => 'North-West', 326.26..348.74 => 'North North-West',
-        348.75..360.00 => 'North'
-      }
-
       def handle_exceptions(m, e)
         m.reply "Something went wrong."
         bot.loggers.exception e
       end
+
+      BASE_URI = URI("http://api.wunderground.com/api/")
       
       def weather_for(location)
-        uri       = BASE_URI + "/data/2.5/weather"
-        uri.query = URI.encode_www_form :q => location, :units => "metric"
+        uri = BASE_URI + "#{config[:api_key]}/conditions/q/#{location}.json"
 
         weather = Bonehead.insist 3 do
-          open(uri) { |f| JSON.parse f.read }
+          open(uri) { |f| JSON.parse(f.read) }
         end
 
-        return weather["message"] unless weather["cod"] == 200
+        if weather["response"].key? "error"
+          return "Error from Wunderground: " + 
+            weather["response"]["error"]["description"]
+        else
+          return format_weather weather["current_observation"]
+        end
+      end
 
-        location    = "#{weather["name"]}, #{weather["sys"]["country"]}"
-        description = weather["weather"].first["description"].capitalize
-        temperature = "#{Integer(weather["main"]["temp"]).ceil}º C " \
-          "(#{fahrenheit weather["main"]["temp"]}º F)"
-        wind        = "Wind: #{Integer(weather["wind"]["speed"]).ceil} km/h " \
-          "(#{miles weather["wind"]["speed"]} mph), " \
-          "#{direction weather["wind"]["deg"]}" 
-        humidity    = "Humidity: #{weather["main"]["humidity"]}%"
+      def format_weather(obs)
+        location    = obs["display_location"]["full"]
+        description = obs["weather"].capitalize
+        temperature = "#{obs["temp_c"]}º C (#{obs["temp_f"]}º F)"
+        wind        = "Wind: #{obs["wind_kph"]} km/h (#{obs["wind_mph"]} mph)" \
+          ", #{obs["wind_dir"]}" 
+        humidity    = "Humidity: #{obs["relative_humidity"]}"
 
         "#{location}. #{description}. #{temperature}. #{wind}. #{humidity}."
-      end
-
-      def fahrenheit(celcius)
-        (celcius * 1.8 + 31).ceil
-      end
-
-      def miles(kilometers)
-        (kilometers * 0.621371192).ceil
-      end
-
-      def direction(degrees)
-        DIRECTIONS.find { |range, direction| range.include? degrees.to_i }.last
       end
     end
   end

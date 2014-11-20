@@ -102,9 +102,14 @@ module Bitches
           # c.plugins.plugins << Cinch::Plugins::Slang
 
 
-          require "bitches/plugins/weather"
+          if ENV.key? "WUNDERGROUND_KEY"
+            require "bitches/plugins/weather"
 
-          c.plugins.plugins << Bitches::Plugins::Weather
+            c.plugins.plugins << Bitches::Plugins::Weather
+            c.plugins.options[Bitches::Plugins::Weather] = {
+              :api_key => ENV["WUNDERGROUND_KEY"]
+            }
+          end
 
 
           if ENV.key?("WHATCD_COOKIE")
