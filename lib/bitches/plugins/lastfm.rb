@@ -1,5 +1,5 @@
 require "lastfm"
-require "bonehead" # TODO: Fix this.
+require "bonehead"
 
 module Bitches
   module Plugins
@@ -61,7 +61,6 @@ module Bitches
           artist, title = track['artist']['content'], track['name']
           msg = "#{display_name} is now playing #{artist} - #{title}."
         elsif Time.at(track["date"]["uts"].to_i).between? Time.now - 600, Time.now
-          # TODO: Add a relative time.
           artist, title = track['artist']['content'], track['name']
           msg = "#{display_name} last played #{artist} - #{title}."
         else
