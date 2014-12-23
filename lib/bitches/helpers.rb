@@ -69,11 +69,17 @@ module Bitches
     end
 
     def youtube_preview(video)
-      rating   = ("★" * video.rating.average.ceil).ljust 5, "☆"
+      unless video.rating.nil?
+        rating = ("★" * video.rating.average.ceil).ljust(5, "☆")
+      end
+
       duration = Time.at(video.duration).gmtime.strftime "%R:%S"
       duration = duration[3..-1] if duration.start_with? "00"
 
-      "#{video.title} [#{duration}] - #{rating}"
+      preview  = "#{video.title} [#{duration}]"
+      preview << " - #{rating}" if rating
+
+      return preview
     end
 
   private

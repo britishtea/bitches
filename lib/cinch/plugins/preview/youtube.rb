@@ -14,8 +14,6 @@ module Cinch
           video = @client.video_by uri.to_s
 
           Bitches::Helpers.youtube_preview video
-        rescue OpenURI::HTTPError => e
-          false
         end
       end
 
