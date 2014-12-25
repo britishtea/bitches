@@ -63,11 +63,11 @@ module Cinch
         return false
       end
 
-      # Returns a preview String or an error message String.
+      # Returns a preview String or nil.
       def default_preview(uri)
         Timeout.timeout(5) { HANDLERS[:default].call uri }
       rescue Timeout::Error
-        return "Unable to fetch title for #{uri}."
+        return nil
       end
     end
   end
