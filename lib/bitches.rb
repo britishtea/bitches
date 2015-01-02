@@ -97,11 +97,6 @@ module Bitches
           c.plugins.plugins << Cinch::Plugins::Search
 
 
-          # require "cinch/plugins/slang"
-
-          # c.plugins.plugins << Cinch::Plugins::Slang
-
-
           if ENV.key? "WUNDERGROUND_KEY"
             require "bitches/plugins/weather"
 
