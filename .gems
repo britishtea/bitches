@@ -1,16 +1,12 @@
 data_mapper -v 1.2.0
-urban_dictionary -v 0.0.2
 whatcd -v 0.2.0
 dm-postgres-adapter -v 1.2.0
-wikipedia-client -v 1.0.0
-yahoo_weatherman -v 2.0.0
 cinch -v 2.0.11
 cinch-authentication -v 0.1.0
 cinch-identify -v 1.5.1
 lastfm -v 1.22.0
 bonehead -v 0.0.1
 clap -v 1.0.0
-filmbuff -v 0.1.6
 nokogiri -v 1.6.1
 google-search -v 1.0.3
 youtube_it -v 2.4.2
