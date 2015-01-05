@@ -25,12 +25,12 @@ module Bitches
       end
 
       def np_self(m)
+        m.reply now_playing(m.user, m.user.nick)
+
         unless lastfm_name_for m.user
           m.user.notice NOT_REGISTERED
           m.user.notice "\"#{m.user}\" is assumed to be your Last.fm username."
         end
-
-        m.reply now_playing(m.user, m.user.nick)
       rescue => e
         handle_exceptions m, e
       end
@@ -74,14 +74,15 @@ module Bitches
       match /co(?:mpare)? (\S+)$/i,       :group => :co, :method => :co_self
       match /co(?:mpare)? (\S+) (\S+)$/i, :group => :co, :method => :co_other
       match /coham$/i,                    :group => :co, :method => :coham
+      match /codisco$/i,                  :group => :co, :method => :codisco
 
       def co_self(m, nick)
+        m.reply compare(m.user, nick)
+
         unless lastfm_name_for m.user
           m.user.notice NOT_REGISTERED
           m.user.notice "\"#{m.user}\" is assumed to be your last.fm username."
         end
-
-        m.reply compare(m.user, nick)
       rescue => e
         handle_exceptions m, e
       end
@@ -94,6 +95,12 @@ module Bitches
 
       def coham(m)
         m.reply compare("moham", m.user)
+      rescue => e
+        handle_exceptions m, e
+      end
+
+      def codisco(m)
+        m.reply compare("nodisco", m.user)
       rescue => e
         handle_exceptions m, e
       end
