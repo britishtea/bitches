@@ -4,15 +4,13 @@ require "imdb"
 module Cinch
   module Plugins
     class Preview
-      class IMDb
-        def call(uri)
-          return false unless uri.path.start_with? "/title/tt"
-          
+      HANDLERS["imdb.com"] = proc do |uri|
+        if uri.path.start_with? "/title/tt"
           Bitches::Helpers.imdb_preview Imdb::Movie.new(uri.path[9..15])
+        else
+          false
         end
       end
-
-      HANDLERS["imdb.com"] = IMDb.new
     end
   end
 end

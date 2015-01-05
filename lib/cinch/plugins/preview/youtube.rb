@@ -17,10 +17,8 @@ module Cinch
         end
       end
 
-      YouTube.new.tap do |youtube|
-        HANDLERS["youtube.com"] = youtube
-        HANDLERS["youtu.be"]    = youtube
-      end
+      HANDLERS["youtube.com"] = YouTube.new
+      HANDLERS["youtu.be"]    = HANDLERS["youtube.com"]
     end
   end
 end

@@ -3,16 +3,14 @@ require "timeout"
 module Cinch
   module Plugins
     class Preview
-      HANDLERS = Hash.new
+      HANDLERS = {}
 
       include Cinch::Plugin
-
-      attr_reader :ignored_domains
 
       def initialize(*args)
         super
 
-        @ignored_domains = Array(config[:ignored_domains])
+        config[:ignored_domains] ||= []
       end
 
       listen_to :message, :method => :listen
@@ -33,7 +31,9 @@ module Cinch
       def preview_for(uri)
         domain = uri.host.split(".").last(2).join "."
 
-        return if ignored_domains.include? domain
+        if config[:ignored_domains].include?(domain)
+          return nil
+        end
 
         default = Thread.new { default_preview uri }
 
