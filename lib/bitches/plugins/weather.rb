@@ -25,7 +25,7 @@ module Bitches
       end
 
       def cached_location(m)
-        user = Models::User.find_user m.user.authname || m.user.nick
+        user = Models::User.by_nickname(m.user.authname || m.user.nick)
 
         if user.location.nil?
           m.reply "Tell me where you are first (!weather location), I'll " \
@@ -38,8 +38,9 @@ module Bitches
       end
 
       def change_location(m, location)
-        user = Models::User.find_user m.user.authname || m.user.nick
-        user.update :location => location
+        user = Models::User.by_nickname(m.user.authname || m.user.nick)
+        user.location = location
+        user.save
 
         m.reply weather_for user.location
       rescue => e

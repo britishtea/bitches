@@ -134,11 +134,13 @@ module Bitches
       def set_username(m, lastfm_name)
         nickname = m.user.authname || m.user.nick
         
-        user = Models::User.first_or_create :nickname => nickname
+        user = Models::User.by_nickname(nickname)
 
         # This will raise sometimes.
         if @client.user.get_info(:user => lastfm_name)
-          user.update :lastfm_name => lastfm_name
+          user.lastfm_name = lastfm_name
+          user.save
+          
           m.reply "You have been registered as #{lastfm_name}."
         else
           m.reply "There is no #{lastfm_name} on Last.fm."
@@ -285,13 +287,14 @@ module Bitches
       end
 
       # user - A Cinch::User.
+      #
+      # Returns nil or a String.
       def lastfm_name_for(user)
-        result = Models::User.first(
-          :conditions => ['LOWER(nickname) = ?', 
-          (user.authname || user.nick).downcase]
-        )
+        result = Models::User.by_nickname(user.authname || user.nick)
         
-        return result.lastfm_name unless result.nil?
+        unless result.nil?
+          return result.lastfm_name
+        end
       end
 
       # user - A Cinch::User.

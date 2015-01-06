@@ -1,6 +1,4 @@
-data_mapper -v 1.2.0
 whatcd -v 0.2.0
-dm-postgres-adapter -v 1.2.0
 cinch -v 2.0.11
 cinch-authentication -v 0.1.1
 cinch-identify -v 1.6.0
@@ -12,3 +10,5 @@ google-search -v 1.0.3
 youtube_it -v 2.4.2
 dotenv -v 0.9.0
 imdb -v 0.8.2
+sequel -v 4.18.0
+pg -v 0.18.1

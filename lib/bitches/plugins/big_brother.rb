@@ -10,7 +10,7 @@ module Bitches
       set :help, "Usage: !badword (add|delete|list) <badword>."
 
       match /badword add (.+)/i,     :group => :a, :method => :add_bad_word
-      match /badword delete (.+)/i,  :group => :a, :method => :remove_bad_word
+      match /badword delete (.+)/i,  :group => :a, :method => :delete_bad_word
       match /badword list/i,         :group => :a, :method => :list_bad_words
       
       listen_to :message,            :group => :a, :method => :listen
@@ -27,19 +27,17 @@ module Bitches
         return unless authenticated? m
 
         Models::Badword.create(:word => bad_word).save
-
-        m.reply "Added '#{bad_word}' to the list."
+        m.reply "Added \"#{bad_word}\" to the list."
 
         update_list!
       rescue => e
         handle_exceptions m, e
       end
 
-      def remove_bad_word(m, bad_word)
+      def delete_bad_word(m, bad_word)
         return unless authenticated? m
 
-        Models::Badword.first(:word => bad_word).destroy!
-
+        Models::Badword.first(:word => bad_word).destroy
         m.reply "Removed \"#{bad_word}\" from the list."
 
         update_list!
@@ -51,13 +49,18 @@ module Bitches
         return unless authenticated? m
 
         m.reply bad_words.size > 1 ? bad_words.join(", ") : "None."
+      rescue => e
+        handle_exceptions(m, e)
       end
 
       def listen(m)
+        return unless m.channel?
+
         user_modes = m.channel.users[m.user]
         
-        return if [:q,:a,:o,:h].any? { |mode| user_modes.include? mode.to_s }
-        return unless m.channel?
+        if ["q", "a", "o", "h"].any? { |mode| user_modes.include?(mode) }
+          return
+        end
 
         match = bad_words.find { |word| m.message.include? word }
 
@@ -81,7 +84,7 @@ module Bitches
       end
 
       def update_list!
-        @bad_words = Models::Badword.all(:id.gt => 0).map &:word
+        @bad_words = Models::Badword.select(:word).all.map(&:word)
       end
     end
   end
