@@ -118,17 +118,11 @@ module Bitches
       BASE_URI = URI.parse "https://what.cd/"
 
       def format_torrent(torrent)
+        torrent   = @client.fetch :torrentgroup, :id => torrent["groupId"]
         url       = BASE_URI + "torrents.php"
         url.query = URI.encode_www_form :id => torrent["groupId"]
 
-        if torrent.key? "category"
-          preview = torrent["groupName"]
-        else
-          preview = "#{torrent["artist"]} - #{torrent["groupName"]} " \
-            "(#{torrent["groupYear"]})"
-        end
-
-        "#{CGI.unescapeHTML preview} => #{url}"
+        "#{Bitches::Helpers.whatcd_torrentgroup_preview torrent} => #{url}"
       end
 
       def format_user(user)
