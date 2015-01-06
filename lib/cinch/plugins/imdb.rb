@@ -3,15 +3,15 @@ require "bitches/helpers"
 require "imdb"
 
 module Cinch
-	module Plugins
-		class IMDb
-			include Cinch::Plugin
+  module Plugins
+    class IMDb
+      include Cinch::Plugin
 
       match /imdb tt(\d{7})/i, :group => :imdb, :method => :by_id 
-			match /imdb (\d{7})/i,   :group => :imdb, :method => :by_id
-			match /imdb (.+)/i,      :group => :imdb, :method => :by_title
+      match /imdb (\d{7})/i,   :group => :imdb, :method => :by_id
+      match /imdb (.+)/i,      :group => :imdb, :method => :by_title
 
-			def by_id(m, id)
+      def by_id(m, id)
         movie = Imdb::Movie.new id
 
         if movie.title.nil?
@@ -45,6 +45,6 @@ module Cinch
       def create_movie_preview(movie)
         "#{Bitches::Helpers.imdb_preview movie} - #{movie.url}"
       end
-		end
-	end
+    end
+  end
 end
