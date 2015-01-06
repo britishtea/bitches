@@ -132,6 +132,10 @@ module Bitches
           m.reply "#{char}ong"
         end
       end
+
+      unless $DEBUG
+        @bot.loggers.level = :info
+      end
     end
 
     def start
