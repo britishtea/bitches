@@ -1,5 +1,5 @@
 whatcd -v 0.2.0
-cinch -v 2.2.2
+cinch -v 2.2.3
 cinch-authentication -v 0.1.1
 cinch-identify -v 1.6.0
 lastfm -v 1.25.0
