@@ -117,11 +117,18 @@ module Bitches
         end
 
         score   = Float(tasteometer['score']) * 100
-        matches = Integer(tasteometer['artists']['matches'])
+        matches = Integer(tasteometer['artists']['matches']) rescue 0
         msg     = "#{one} and #{two} are #{score.round 2}% alike."
 
         if matches > 0
-          artists = tasteometer['artists']['artist'].map { |a| a['name'] }
+          # If there's 1 matching artist, it tasteometer["artists"]["artist"]
+          # isn't an Array but a Hash. For fuck's sake.
+          if matches == 1
+            artists = [tasteometer["artists"]["artist"]["name"]]
+          else
+            artists = tasteometer['artists']['artist'].map { |a| a['name'] }
+          end
+
           msg << " They have both listened to #{enumerate artists}."
         end
 
